@@ -19,7 +19,7 @@ RR#Risk reduction offered (BASE% to BASE%-RR)#SWACHE survey#Continuous: percenta
 LogBid1#First (opening) bid level shown in the double-bounded dichotomous-choice sequence#SWACHE survey#Continuous: log of PPP-adjusted USD bid#2.996#5.28#1.346#7.499
 LogBid2#Second (follow-up) bid level, contingent on the response to LogBid1#SWACHE survey#Continuous: log of PPP-adjusted USD bid#1.954#5.299#1.463#8.627
 Dummy_Female#Are you...? (gender)#SWACHE survey#Binary: 1 = female, 0 = otherwise#0#0.514#0.5#1
-LogIncome#Household income (post-imputation for refused/unknown responses -- see Setup ledger L1-L3)#SWACHE survey#Continuous: log of PPP-adjusted monthly household income#5.822#8.152#0.627#9.503
+LogIncome#Monthly household income, with refused or unknown responses imputed before analysis#SWACHE survey#Continuous: log of PPP-adjusted monthly household income#5.822#8.152#0.627#9.503
 INC1_MissingDummy#Refused or did not know their first income question#SWACHE survey#Binary: 1 = missing/refused, 0 = answered#0#0.117#0.322#1
 EducationCategory_Dummy_High#Highest level of education attained#SWACHE survey#Binary: 1 = high (tertiary), 0 = otherwise#0#0.488#0.5#1
 Certainty#How certain are you of the maximum value you just indicated?#SWACHE survey#Ordinal: 0 (strongly uncertain) to 4 (strongly certain)#0#2.501#1.072#4

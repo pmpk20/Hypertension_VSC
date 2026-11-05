@@ -3,7 +3,8 @@ type: dataset
 message: >-
   Please cite this replication package and the accompanying paper when using
   these data or code, and acknowledge the OECD SWACHE project as the survey
-  source.
+  source. The data and questionnaire figures are licensed under CC BY 4.0;
+  the R code is licensed separately under MIT.
 title: >-
   The value of a statistical case of hypertension: Stated preference evidence
   from ten OECD countries — replication data and code
@@ -19,12 +20,13 @@ authors:
     given-names: Mike
     affiliation: "EMRC, UK"
 repository-code: "https://github.com/pmpk20/Hypertension_VSC"
-license: MIT
+license: CC-BY-4.0
 abstract: >-
   Survey data and R code for estimating willingness to pay to reduce
   hypertension risk and the value of a statistical case across ten OECD
   countries. Includes 12,182 completed responses, page timings, a codebook,
   and scripts and outputs for the paper and supplementary information.
+  Data and questionnaire figures: CC BY 4.0. R code: MIT.
   The data support comparisons of willingness to pay across countries and
   alternative analyses of risk valuation, income effects and sample-screening
   rules.

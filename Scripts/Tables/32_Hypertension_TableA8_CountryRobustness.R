@@ -1,10 +1,10 @@
 #### Hypertension: Country Robustness ####
 # Purpose: Produce Table A8: country-level VSC under the weighting and never-diagnosed robustness checks.
 # Author: Anonymised for peer review.
-# Prerequisites: Run preparation steps 01–13; then script 30.
+# Prerequisites: None with the supplied outputs. Scripts 14 and 30 produce the inputs in a full replication.
 # Run from the project root: source("Scripts/Tables/32_Hypertension_TableA8_CountryRobustness.R", encoding = "UTF-8")
 # Inputs:
-#   Data/Data_AllCountries_SubsampledForAnalysis_Rebuilt.csv.
+#   Output/Models/Hypertension_Model_PooledAndCountryModels.rds (sample counts).
 #   Output/Tables/Hypertension_Table_RobustnessChecks.txt.
 # Outputs:
 #   Output/Tables/Hypertension_TableA8_CountryRobustness.txt.
@@ -16,14 +16,18 @@
 # *************************************************************
 
 
-source(here::here("Scripts", "Setup", "04_Hypertension_Setup_SharedCalculations.R"))
+Report_Tables <- file.path("Output", "Tables")
 
 
-Data <- load_analysis_data()
+Report_Countries <- c("Austria", "Belgium", "Canada", "Finland", "Greece",
+                      "Japan", "Portugal", "Slovenia", "United Kingdom", "United States")
+
+
+Data <- readRDS(file.path("Output", "Models", "Hypertension_Model_PooledAndCountryModels.rds"))$pooled_model$data
 
 
 Robustness_Lines <- readLines(
-  here::here("Output", "Tables", "Hypertension_Table_RobustnessChecks.txt"),
+  file.path(Report_Tables, "Hypertension_Table_RobustnessChecks.txt"),
   warn = FALSE)
 
 
@@ -67,15 +71,33 @@ Undiagnosed_Header <- grep("Spec 1, undiagnosed only", Robustness_Lines)
 Undiagnosed_Pooled <- as.numeric(sub(".*mean VSC = (\\d+).*", "\\1", Robustness_Lines[Undiagnosed_Header]))
 
 
-## The country means are printed as a named vector over four lines
-## (names, values, names, values) after the coefficient block.
-Country_Block <- Robustness_Lines[(Undiagnosed_Header + 14):(Undiagnosed_Header + 17)]
+## Read each country-name line and its values within section (c). This handles
+## varying print widths and does not depend on the number of coefficient rows.
+Read_Country_Means <- function(Lines, Countries) {
+  Section_Start <- grep("^\\(c\\)", trimws(Lines))
+  Section_End <- grep("^\\(d\\)", trimws(Lines))
+  stopifnot(length(Section_Start) == 1L, length(Section_End) == 1L,
+            Section_End > Section_Start)
+  Block <- trimws(Lines[seq.int(Section_Start + 1L, Section_End - 1L)])
+  Block <- Block[nzchar(Block)]
+  Result <- setNames(rep(NA_real_, length(Countries)), Countries)
+  for (i in seq_len(length(Block) - 1L)) {
+    Name_Pattern <- paste(Countries, collapse = "|")
+    Names <- regmatches(Block[i], gregexpr(Name_Pattern, Block[i]))[[1]]
+    if (!length(Names) || nzchar(trimws(gsub(Name_Pattern, "", Block[i])))) next
+    Values <- strsplit(Block[i + 1L], "\\s+")[[1]]
+    stopifnot(length(Names) == length(Values), !anyDuplicated(Names),
+              all(grepl("^[0-9]+$", Values)), all(is.na(Result[Names])))
+    Result[Names] <- as.numeric(Values)
+  }
+  stopifnot("Never-diagnosed estimates must cover each country once" = !anyNA(Result))
+  Result
+}
 
 
-Undiagnosed_Names <- unlist(lapply(Country_Block[c(1, 3)], function(s) strsplit(trimws(s), "\\s{2,}")[[1]]))
-
-
-Undiagnosed_Values <- as.numeric(unlist(lapply(Country_Block[c(2, 4)], function(s) strsplit(trimws(s), "\\s+")[[1]])))
+Undiagnosed_Means <- Read_Country_Means(Robustness_Lines, Report_Countries)
+Undiagnosed_Names <- names(Undiagnosed_Means)
+Undiagnosed_Values <- unname(Undiagnosed_Means)
 
 
 Undiagnosed <- data.frame(
@@ -124,7 +146,8 @@ stopifnot(
 print(TableA8, row.names = FALSE)
 
 
-fwrite(TableA8, sep = "#", file.path(Report_Tables, "Hypertension_TableA8_CountryRobustness.txt"))
+write.table(TableA8, file.path(Report_Tables, "Hypertension_TableA8_CountryRobustness.txt"),
+            sep = "#", row.names = FALSE, quote = FALSE)
 
 
 cat(paste(

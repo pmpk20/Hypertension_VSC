@@ -41,7 +41,7 @@ IndividualVars <- tibble::tribble(
   "LogBid1",                        "First (opening) bid level shown in the double-bounded dichotomous-choice sequence",                                             "Continuous: log of PPP-adjusted USD bid",
   "LogBid2",                        "Second (follow-up) bid level, contingent on the response to LogBid1",                                                           "Continuous: log of PPP-adjusted USD bid",
   "Dummy_Female",                   "Are you...? (gender)",                                                                                                          "Binary: 1 = female, 0 = otherwise",
-  "LogIncome",                      "Household income (post-imputation for refused/unknown responses -- see Setup ledger L1-L3)",                                    "Continuous: log of PPP-adjusted monthly household income",
+  "LogIncome",                      "Monthly household income, with refused or unknown responses imputed before analysis",                                    "Continuous: log of PPP-adjusted monthly household income",
   "INC1_MissingDummy",              "Refused or did not know their first income question",                                                                          "Binary: 1 = missing/refused, 0 = answered",
   "EducationCategory_Dummy_High",   "Highest level of education attained",                                                                                           "Binary: 1 = high (tertiary), 0 = otherwise",
   "Certainty",                      "How certain are you of the maximum value you just indicated?",                                                                  "Ordinal: 0 (strongly uncertain) to 4 (strongly certain)",
