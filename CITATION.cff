@@ -1,0 +1,42 @@
+cff-version: 1.2.0
+type: dataset
+message: >-
+  Please cite this replication package and the accompanying paper when using
+  these data or code, and acknowledge the OECD SWACHE project as the survey
+  source.
+title: >-
+  The value of a statistical case of hypertension: Stated preference evidence
+  from ten OECD countries — replication data and code
+authors:
+  - family-names: King
+    given-names: Peter
+    affiliation: "Institute for Transport Studies, University of Leeds, Leeds, UK"
+    orcid: "https://orcid.org/0000-0001-8550-466X"
+  - family-names: Hunt
+    given-names: Alistair
+    affiliation: "University of Bath, Bath, UK"
+  - family-names: Holland
+    given-names: Mike
+    affiliation: "EMRC, UK"
+repository-code: "https://github.com/pmpk20/Hypertension_VSC"
+license: MIT
+abstract: >-
+  Survey data and R code for estimating willingness to pay to reduce
+  hypertension risk and the value of a statistical case across ten OECD
+  countries. Includes 12,182 completed responses, page timings, a codebook,
+  and scripts and outputs for the paper and supplementary information.
+  The data support comparisons of willingness to pay across countries and
+  alternative analyses of risk valuation, income effects and sample-screening
+  rules.
+keywords:
+  - hypertension
+  - willingness to pay
+  - contingent valuation
+  - stated preference
+  - health economics
+  - environmental economics
+  - value of a statistical case
+  - replication
+  - R
+  - OECD SWACHE
+# Code: MIT (LICENSE). Data and questionnaire figures: CC BY 4.0 (Data/LICENSE.md).

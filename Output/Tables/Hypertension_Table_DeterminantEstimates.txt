@@ -1,0 +1,32 @@
+Variable#Baseline#With controls#Health controls
+(Intercept)#3.032*** (0.096)#0.891*** (0.207)#0.719*** (0.216)
+BASE_Numeric#-0.005*** (0.001)#-0.006*** (0.001)#-0.008*** (0.001)
+RR#0.037*** (0.003)#0.037*** (0.003)#0.038*** (0.003)
+Bid#-0.506*** (0.006)#-0.519*** (0.007)#-0.522*** (0.007)
+Diagnostics#Diagnostics#Diagnostics#Diagnostics
+Observations#9496#9496#9496
+Post-stratification weight x country dummies#Yes#Yes#Yes
+AIC#24973.786#24587.498#24443.509
+BIC#25074.007#24744.988#24658.268
+LogLik#-12472.893#-12271.749#-12191.754
+LR Stat#487.213#889.501#1049.490
+MeanWTP#$968.53#$997.88#$1020.71
+MedianWTP#$247.49#$252.76#$252.20
+MeanVSC#$56780.26#$58661.62#$59999.42
+MedianVSC#$15439.68#$15477.03#$15553.31
+Dummy_Female##-0.153*** (0.026)#-0.141*** (0.026)
+LogIncome##0.304*** (0.025)#0.292*** (0.025)
+INC1_MissingDummy##-0.147*** (0.038)#-0.129*** (0.039)
+EducationCategory_Dummy_High##0.152*** (0.028)#0.136*** (0.028)
+Certainty##-0.112*** (0.012)#-0.122*** (0.012)
+MarriedDummy##0.083*** (0.030)#0.066** (0.030)
+HH_PersonsNumeric##-0.043*** (0.012)#-0.037*** (0.012)
+EmployDummy_Employ##-0.020 (0.029)#0.003 (0.029)
+Health_HadHBP###0.056* (0.032)
+HBP_RelativeRiskHigh###0.134*** (0.034)
+HBP_Genetic###0.153*** (0.033)
+HBP_Healthier###-0.247*** (0.035)
+HBP_Family###0.061** (0.030)
+Health_Relative###0.050*** (0.016)
+Health_Drink###0.045*** (0.015)
+Health_Lifestyle###0.060*** (0.018)

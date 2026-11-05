@@ -1,0 +1,34 @@
+Variable#Baseline#With controls#Health controls#Marginal effect on WTP (%)#Marginal effect on WTP (USD)
+Intercept#3.032*** (0.096)#0.891*** (0.207)#0.719*** (0.216)##
+Base risk#-0.005*** (0.001)#-0.006*** (0.001)#-0.008*** (0.001)#-1.14%#-11.61
+Risk reduction#0.037*** (0.003)#0.037*** (0.003)#0.038*** (0.003)#+5.87%#+59.88
+Log (bid level)#-0.506*** (0.006)#-0.519*** (0.007)#-0.522*** (0.007)##
+Female (0/1)#""#-0.153*** (0.026)#-0.141*** (0.026)#-19.32%#-218.90
+Log (income)#""#0.304*** (0.025)#0.292*** (0.025)#+0.44%#+4.50
+Missing income (0/1)#""#-0.147*** (0.038)#-0.129*** (0.039)#-18.06%#-187.72
+High education (0/1)#""#0.152*** (0.028)#0.136*** (0.028)#+23.11%#+210.22
+Response certainty (0 - 4)#""#-0.112*** (0.012)#-0.122*** (0.012)#-17.19%#-175.45
+Married (0/1)#""#0.083*** (0.030)#0.066** (0.030)#+10.51%#+99.64
+Household size (0 - 7)#""#-0.043*** (0.012)#-0.037*** (0.012)#-5.45%#-55.66
+Employed (0/1)#""#-0.020 (0.029)#0.003 (0.029)#+0.47%#+4.81
+Has a doctor ever told you that you had high blood pressure? (0/1)#""#""#0.056* (0.032)#+8.81%#+87.27
+Risk of developing high blood pressure compared to people of your age and gender is larger (0/1)#""#""#0.134*** (0.034)#+22.32%#+215.89
+Genetic condition (0/1)#""#""#0.153*** (0.033)#+25.89%#+246.01
+Just adopt a healthier lifestyle to reduce your risk instead of paying? (0/1)#""#""#-0.247*** (0.035)#-30.78%#-421.13
+People close to you (family, friends) who have, or have had, high blood pressure? (0/1)#""#""#0.061** (0.030)#+9.72%#+92.70
+Relative health compared to others of their age and gender in their country (1 - 5)#""#""#0.050*** (0.016)#+7.77%#+79.29
+Frequency of alcoholic drinks#""#""#0.045*** (0.015)#+7.04%#+71.87
+Do you consider yourself to have a healthy lifestyle?#""#""#0.060*** (0.018)#+9.51%#+97.11
+Diagnostics#Diagnostics#Diagnostics#Diagnostics##
+Observations#9496#9496#9496##
+AIC#24973.786#24587.498#24443.509##
+BIC#25074.007#24744.988#24658.268##
+Log-likelihood#-12472.893#-12271.749#-12191.754##
+Likelihood-ratio statistic#487.213#889.501#1049.490##
+Mean WTP (USD2023 PPP)#$968.53#$997.88#$1020.71##
+Median WTP (USD2023 PPP)#$247.49#$252.76#$252.20##
+Mean VSC (USD2023 PPP)#$56780.26#$58661.62#$59999.42##
+Median VSC (USD2023 PPP)#$15439.68#$15477.03#$15553.31##
+Income elasticity (simulation, truncated mean)#""#""#0.441 [0.365, 0.509]#""#""
+Income elasticity (analytical, median)#""#""#0.559 [0.462, 0.648]#""#""
+Note: The marginal effect of log(income) reports the simulation-based elasticity of the truncated mean WTP: the percentage change in mean WTP resulting from a 1% increase in all respondents' incomes, computed by reintegration of the survival function. The analytical ratio beta_income/|beta_bid| = 0.559 gives the exact elasticity of the Weibull median WTP, which is a log-linear function of the scale parameter. Elasticity 95% confidence intervals in brackets are from 1000 Krinsky-Robb draws. 

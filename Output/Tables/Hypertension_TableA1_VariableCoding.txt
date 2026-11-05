@@ -1,0 +1,50 @@
+Variable#Definition#Source#Coding#Min#Mean#SD#Max
+-- Survey design and sample (N = 9,496) --#""#""#""####
+Austria#From 1,222 completed interviews, 932 respondents remained in the analysis sample after screening for speeding and failed risk comprehension.#SWACHE survey#Binary: 1 = Austria, 0 = otherwise#0#0.098#0.298#1
+Belgium#From 1,214 completed interviews, 954 respondents remained in the analysis sample after screening for speeding and failed risk comprehension.#SWACHE survey#Binary: 1 = Belgium, 0 = otherwise#0#0.1#0.301#1
+Canada#From 1,224 completed interviews, 959 respondents remained in the analysis sample after screening for speeding and failed risk comprehension.#SWACHE survey#Binary: 1 = Canada, 0 = otherwise#0#0.101#0.301#1
+Finland#From 1,218 completed interviews, 955 respondents remained in the analysis sample after screening for speeding and failed risk comprehension.#SWACHE survey#Binary: 1 = Finland, 0 = otherwise#0#0.101#0.301#1
+Greece#From 1,205 completed interviews, 904 respondents remained in the analysis sample after screening for speeding and failed risk comprehension.#SWACHE survey#Binary: 1 = Greece, 0 = otherwise#0#0.095#0.294#1
+Japan#From 1,219 completed interviews, 986 respondents remained in the analysis sample after screening for speeding and failed risk comprehension.#SWACHE survey#Binary: 1 = Japan, 0 = otherwise#0#0.104#0.305#1
+Portugal#From 1,218 completed interviews, 943 respondents remained in the analysis sample after screening for speeding and failed risk comprehension.#SWACHE survey#Binary: 1 = Portugal, 0 = otherwise#0#0.099#0.299#1
+Slovenia#From 1,221 completed interviews, 957 respondents remained in the analysis sample after screening for speeding and failed risk comprehension.#SWACHE survey#Binary: 1 = Slovenia, 0 = otherwise#0#0.101#0.301#1
+United Kingdom#From 1,230 completed interviews, 1,021 respondents remained in the analysis sample after screening for speeding and failed risk comprehension.#SWACHE survey#Binary: 1 = United Kingdom, 0 = otherwise#0#0.108#0.31#1
+United States#From 1,211 completed interviews, 885 respondents remained in the analysis sample after screening for speeding and failed risk comprehension.#SWACHE survey#Binary: 1 = United States, 0 = otherwise#0#0.093#0.291#1
+Post-stratification weight#Ipsos post-stratification weight aligning each country sample to national population totals for gender x age, education, and geographic region by iterative proportional fitting (raking), computed country by country and efficiency-trimmed; entered in the model interacted with the country indicator.#Ipsos#Continuous (raking weight)#0.563#0.997#0.183#3.281
+Survey completion time#Total elapsed time to complete the questionnaire.#SWACHE survey (Ipsos paradata)#Minutes#5.75#18.247#18.048#433.583
+Valuation section time#Elapsed time on the valuation (double-bounded dichotomous choice) section.#SWACHE survey (Ipsos paradata)#Minutes#0.6#2.071#4.99#211.583
+-- Individual-level (N = 9,496) --#""#""#""####
+BASE_Numeric#Base risk of developing high blood pressure over 10 years, as presented to the respondent#SWACHE survey#Continuous: percentage points (30 or 55)#30#44.998#12.248#55
+RR#Risk reduction offered (BASE% to BASE%-RR)#SWACHE survey#Continuous: percentage points (10 or 20)#10#14.974#5#20
+LogBid1#First (opening) bid level shown in the double-bounded dichotomous-choice sequence#SWACHE survey#Continuous: log of PPP-adjusted USD bid#2.996#5.28#1.346#7.499
+LogBid2#Second (follow-up) bid level, contingent on the response to LogBid1#SWACHE survey#Continuous: log of PPP-adjusted USD bid#1.954#5.299#1.463#8.627
+Dummy_Female#Are you...? (gender)#SWACHE survey#Binary: 1 = female, 0 = otherwise#0#0.514#0.5#1
+LogIncome#Household income (post-imputation for refused/unknown responses -- see Setup ledger L1-L3)#SWACHE survey#Continuous: log of PPP-adjusted monthly household income#5.822#8.152#0.627#9.503
+INC1_MissingDummy#Refused or did not know their first income question#SWACHE survey#Binary: 1 = missing/refused, 0 = answered#0#0.117#0.322#1
+EducationCategory_Dummy_High#Highest level of education attained#SWACHE survey#Binary: 1 = high (tertiary), 0 = otherwise#0#0.488#0.5#1
+Certainty#How certain are you of the maximum value you just indicated?#SWACHE survey#Ordinal: 0 (strongly uncertain) to 4 (strongly certain)#0#2.501#1.072#4
+MarriedDummy#What is your marital status?#SWACHE survey#Binary: 1 = married, 0 = otherwise#0#0.682#0.466#1
+HH_PersonsNumeric#Number of people living in the household#SWACHE survey#Count: 1 to 7#1#2.541#1.238#7
+EmployDummy_Employ#Current employment status#SWACHE survey#Binary: 1 = employed (incl. self-employed/military), 0 = otherwise#0#0.593#0.491#1
+Health_HadHBP#Has a doctor ever told you that you had high blood pressure?#SWACHE survey#Binary: 1 = yes, 0 = no#0#0.336#0.472#1
+HBP_RelativeRiskHigh#Risk of developing high blood pressure compared to people of your age and gender is larger#SWACHE survey#Binary: 1 = larger, 0 = otherwise#0#0.253#0.435#1
+HBP_Genetic#Is high blood pressure a genetic condition in your family?#SWACHE survey#Binary: 1 = yes, 0 = no#0#0.272#0.445#1
+HBP_Healthier#When choosing between the current and reduced risk, were you thinking you could just adopt a healthier lifestyle instead of paying?#SWACHE survey#Binary: 1 = yes, 0 = no#0#0.817#0.387#1
+HBP_Family#Do you know of people close to you (family, friends) who have, or have had, high blood pressure?#SWACHE survey#Binary: 1 = yes, 0 = no#0#0.698#0.459#1
+Health_Relative#Self-reported health relative to others of their age and gender in their country#SWACHE survey#Ordinal: 1 (well below average) to 5 (well above average); 0 = not answered#0#3.302#0.901#5
+Health_Drink#How many alcoholic drinks do you usually have in a normal week?#SWACHE survey#Ordinal: 1 = non-drinker, 2 = 1-4/week, 3 = 5-9/week, 4 = >9/week; 0 = not answered#0#1.731#0.891#4
+Health_Lifestyle#Do you consider yourself to have a healthy lifestyle (exercise regularly, eat healthily, sleep more than 7 hours a night)?#SWACHE survey#Ordinal: 0 (strongly disagree) to 4 (strongly agree)#0#2.732#0.787#4
+resp_age#Respondent age#SWACHE survey#Continuous: years#18#49.044#16.245#97
+-- Debriefing questions (N = 9,496) --#""#""#""####
+Thought risk reduction was permanent#Did you understand that your risk of developing high blood pressure would return to its current level after 10 years even if you chose to pay to reduce your risk over 10 years?#SWACHE survey#Binary: 1 = did not answer yes, 0 = yes#0#0.115#0.319#1
+Yea-sayer, would pay anything#Please consider the statement: 'I would pay almost anything to improve my health even by a small amount'. Do you agree?#SWACHE survey#Binary: 1 = agree, 0 = otherwise#0#0.364#0.481#1
+Did not reflect a real-life choice#My survey responses reflect what I would have done in real life.#SWACHE survey#Binary: 1 = strongly or somewhat disagree, 0 = otherwise#0#0.025#0.157#1
+Did not feel informed enough#The survey provided me with enough information to make informed choices.#SWACHE survey#Binary: 1 = strongly or somewhat disagree, 0 = otherwise#0#0.045#0.208#1
+-- Country-level (N = 10) --#""#""#""####
+Log GDP per capita#Gross domestic product per capita#OECD National Accounts, 2023#USD, PPP-adjusted (log taken in models)#40625.448#59784.031#12401.332#82222.895
+Log sample income#Weighted geometric mean of respondents' household income#SWACHE survey (aggregated to country level)#USD, PPP-adjusted (log taken in models)#2374.012#3534.525#791.834#4871.367
+OOP health expenditure share#Out-of-pocket share of current health expenditure#OECD Health Expenditure and Financing, SHA framework, 2022#Proportion, 0-1 scale#0.11#0.181#0.076#0.335
+Hypertension prevalence#Age-standardised hypertension prevalence, adults 30-79, both sexes#WHO, Global report on hypertension 2025, Annex 1 country profiles#Proportion, 0-1 scale#0.27#0.385#0.07#0.53
+Mean age of sample#Mean respondent age#SWACHE survey (aggregated to country level)#Years#46.973#49.035#1.743#53.003
+
+Note: individual-level and survey-design summary statistics computed on the baseline estimation sample (N=9,496); country-level statistics across the 10 survey countries (N=10). The per-country 'completed interviews' counts and the two response-timing rows are read from the pre-screen merged file (12,182 responses); timing is elapsed minutes and is right-skewed (a few respondents left the survey open). Individual-level survey question wording is reused from 20_Hypertension_Table2_WillingnessToPayDeterminants.R's RELABEL_MAP, not re-derived, to avoid two competing sources of truth for the same wording.

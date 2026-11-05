@@ -1,0 +1,18 @@
+Variable#Baseline#Believed 10yr risk#Yea-sayers removed#Consequential (A1_1)#Consequential (A1_2)
+(Intercept)#3.032*** (0.096)#3.057*** (0.102)#2.745*** (0.118)#3.017*** (0.097)#3.053*** (0.098)
+BASE_Numeric#-0.005*** (0.001)#-0.005*** (0.001)#-0.000 (0.001)#-0.005*** (0.001)#-0.005*** (0.001)
+RR#0.037*** (0.003)#0.038*** (0.003)#0.040*** (0.003)#0.038*** (0.003)#0.037*** (0.003)
+Bid#-0.506*** (0.006)#-0.519*** (0.007)#-0.530*** (0.008)#-0.508*** (0.007)#-0.510*** (0.007)
+Diagnostics#Diagnostics#Diagnostics#Diagnostics#Diagnostics#Diagnostics
+Included#9496#8403#6040#9257#9066
+Excluded#0 (0.0%)#1093 (11.5%)#3456 (36.4%)#239 (2.5%)#430 (4.5%)
+AIC#24973.786#22084.133#15647.659#24354.313#23847.101
+BIC#25074.007#22182.642#15741.545#24454.177#23946.673
+LogLik#-12472.893#-11028.067#-7809.829#-12163.156#-11909.550
+LR Stat#487.213#435.133#521.230#470.425#467.291
+MeanWTP#$968.53#$943.75#$662.11#$963.56#$978.92
+MedianWTP#$247.49#$251.92#$152.82#$246.00#$255.42
+MeanVSC#$56780.26#$55201.04#$38148.66#$56354.20#$57376.66
+MedianVSC#$15439.68#$14916.72#$8760.86#$15303.48#$15851.30
+
+Note: each column re-estimates the pooled Specification 1 (baseline) Weibull model on the sample remaining after one discretionary screen is applied ALONE to the N=9,496 baseline analysis sample. 'Included' is that sample size; 'Excluded' is the number (and % of 9,496) the screen drops. Screens: thought the risk change was permanent (HBP_10Yr==0); yea-sayer, would pay almost anything (HBP_PayAnything==1); DBDC answers didn't reflect real-life choice (A1_1 disagree); didn't feel informed enough (A1_2 disagree). Prior HBP diagnosis is not screened here -- it is a covariate in the individual-level specifications. WTP/VSC rows are the sample mean/median of the individual measures on the 2023 AIC PPP basis.

@@ -1,0 +1,118 @@
+Validation: dbchoice logLik -12472.893 vs hand-coded at dbchoice estimates -12472.893
+
+(a) Mean VSC (USD 2023 PPP): published Spec 1 vs country FE with weighted pseudo-ML
+        Country Published FE_weightedML FE_unweighted Pct_diff_weightedML
+        Austria     51360         49828         49794                -3.0
+        Belgium     39166         39012         39344                -0.4
+         Canada     61074         61073         60179                 0.0
+        Finland     45056         44137         43726                -2.0
+         Greece     90058         91480         96753                 1.6
+          Japan     30565         28906         29769                -5.4
+       Portugal     78353         78453         80736                 0.1
+       Slovenia     54061         53465         52341                -1.1
+ United Kingdom     48137         47987         48903                -0.3
+  United States     74613         74549         73692                -0.1
+         Pooled     56780         56318         57035                -0.8
+
+Weighted pseudo-ML coefficients (sandwich SE):
+            term     est     se
+       Intercept  2.7664 0.0806
+       D_Belgium -0.1349 0.0569
+        D_Canada  0.1403 0.0576
+       D_Finland -0.0670 0.0573
+        D_Greece  0.3762 0.0630
+         D_Japan -0.3446 0.0587
+      D_Portugal  0.2636 0.0615
+      D_Slovenia  0.0578 0.0588
+ D_UnitedKingdom -0.0315 0.0582
+  D_UnitedStates  0.2603 0.0614
+            BASE -0.0050 0.0011
+              RR  0.0371 0.0027
+          LogBid -0.5061 0.0066
+Spearman rank correlation of country VSCs, published vs weighted ML: 1.000
+
+(b) Age within baseline-risk strata
+
+Spec 1 + years since stratum start: N = 9496, mean WTP = 970.28, mean VSC = 56863, logLik = -12470.348
+   BASE_Numeric                  -0.0056 (SE 0.0010, p = 0.000)
+   RR                             0.0371 (SE 0.0026, p = 0.000)
+   BID                           -0.5062 (SE 0.0065, p = 0.000)
+   LogIncome                          NA (SE NA, p = NA)
+   Health_HadHBP                      NA (SE NA, p = NA)
+   HBP_RelativeRiskHigh               NA (SE NA, p = NA)
+   HBP_Genetic                        NA (SE NA, p = NA)
+   HBP_Healthier                      NA (SE NA, p = NA)
+   Health_Relative                    NA (SE NA, p = NA)
+   Health_Drink                       NA (SE NA, p = NA)
+   Health_Lifestyle                   NA (SE NA, p = NA)
+   resp_age                           NA (SE NA, p = NA)
+   AgeWithin                      0.0034 (SE 0.0015, p = 0.024)
+
+Spec 3 (published): N = 9496, mean WTP = 1020.71, mean VSC = 59999, logLik = -12191.754
+   BASE_Numeric                  -0.0075 (SE 0.0012, p = 0.000)
+   RR                             0.0378 (SE 0.0026, p = 0.000)
+   BID                           -0.5219 (SE 0.0067, p = 0.000)
+   LogIncome                      0.2918 (SE 0.0249, p = 0.000)
+   Health_HadHBP                  0.0557 (SE 0.0317, p = 0.079)
+   HBP_RelativeRiskHigh           0.1338 (SE 0.0338, p = 0.000)
+   HBP_Genetic                    0.1526 (SE 0.0329, p = 0.000)
+   HBP_Healthier                 -0.2468 (SE 0.0350, p = 0.000)
+   Health_Relative                0.0496 (SE 0.0161, p = 0.002)
+   Health_Drink                   0.0451 (SE 0.0151, p = 0.003)
+   Health_Lifestyle               0.0604 (SE 0.0176, p = 0.001)
+   resp_age                           NA (SE NA, p = NA)
+   AgeWithin                          NA (SE NA, p = NA)
+
+Spec 3 + years since stratum start: N = 9496, mean WTP = 1020.72, mean VSC = 60013, logLik = -12191.748
+   BASE_Numeric                  -0.0075 (SE 0.0012, p = 0.000)
+   RR                             0.0377 (SE 0.0026, p = 0.000)
+   BID                           -0.5219 (SE 0.0067, p = 0.000)
+   LogIncome                      0.2920 (SE 0.0250, p = 0.000)
+   Health_HadHBP                  0.0564 (SE 0.0322, p = 0.080)
+   HBP_RelativeRiskHigh           0.1338 (SE 0.0338, p = 0.000)
+   HBP_Genetic                    0.1525 (SE 0.0330, p = 0.000)
+   HBP_Healthier                 -0.2468 (SE 0.0350, p = 0.000)
+   Health_Relative                0.0497 (SE 0.0161, p = 0.002)
+   Health_Drink                   0.0452 (SE 0.0151, p = 0.003)
+   Health_Lifestyle               0.0604 (SE 0.0176, p = 0.001)
+   resp_age                           NA (SE NA, p = NA)
+   AgeWithin                     -0.0002 (SE 0.0017, p = 0.909)
+
+(c) Respondents never diagnosed with hypertension
+
+Spec 1, undiagnosed only: N = 6309, mean WTP = 943.01, mean VSC = 54659, logLik = -8319.419
+   BASE_Numeric                  -0.0069 (SE 0.0012, p = 0.000)
+   RR                             0.0401 (SE 0.0032, p = 0.000)
+   BID                           -0.5125 (SE 0.0079, p = 0.000)
+   LogIncome                          NA (SE NA, p = NA)
+   Health_HadHBP                      NA (SE NA, p = NA)
+   HBP_RelativeRiskHigh               NA (SE NA, p = NA)
+   HBP_Genetic                        NA (SE NA, p = NA)
+   HBP_Healthier                      NA (SE NA, p = NA)
+   Health_Relative                    NA (SE NA, p = NA)
+   Health_Drink                       NA (SE NA, p = NA)
+   Health_Lifestyle                   NA (SE NA, p = NA)
+   resp_age                           NA (SE NA, p = NA)
+   AgeWithin                          NA (SE NA, p = NA)
+       Austria        Belgium         Canada        Finland         Greece          Japan       Portugal       Slovenia 
+         49581          34327          57851          40213          87679          25281          76931          47992 
+United Kingdom  United States 
+         49385          81308 
+
+(d) Ordinal health items coded 0 = not answered
+Respondents with any 0 = not answered: 118 (Health_Relative 44, Health_Drink 40, Health_Lifestyle 47)
+
+Spec 3 excluding item non-response: N = 9378, mean WTP = 1022.81, mean VSC = 60165, logLik = -12046.117
+   BASE_Numeric                  -0.0074 (SE 0.0012, p = 0.000)
+   RR                             0.0374 (SE 0.0026, p = 0.000)
+   BID                           -0.5220 (SE 0.0067, p = 0.000)
+   LogIncome                      0.2910 (SE 0.0251, p = 0.000)
+   Health_HadHBP                  0.0564 (SE 0.0320, p = 0.077)
+   HBP_RelativeRiskHigh           0.1272 (SE 0.0341, p = 0.000)
+   HBP_Genetic                    0.1547 (SE 0.0331, p = 0.000)
+   HBP_Healthier                 -0.2471 (SE 0.0353, p = 0.000)
+   Health_Relative                0.0467 (SE 0.0169, p = 0.006)
+   Health_Drink                   0.0439 (SE 0.0153, p = 0.004)
+   Health_Lifestyle               0.0598 (SE 0.0184, p = 0.001)
+   resp_age                           NA (SE NA, p = NA)
+   AgeWithin                          NA (SE NA, p = NA)

@@ -1,0 +1,13 @@
+Country#AUT#BEL#CAN#FIN#GRC#JPN#PRT#SLN#UK#US
+AUT#-#########
+BEL#0.00***#-########
+CAN#0.06*#0.00***#-#######
+FIN#0.15#0.12#0.00***#-######
+GRC#0.00***#0.00***#0.00***#0.00***#-#####
+JPN#0.00***#0.01**#0.00***#0.00***#0.00***#-####
+PRT#0.00***#0.00***#0.00***#0.00***#0.11#0.00***#-###
+SLN#0.59#0.00***#0.17#0.04**#0.00***#0.00***#0.00***#-##
+UK#0.46#0.02**#0.01***#0.47#0.00***#0.00***#0.00***#0.21#-#
+US#0.00***#0.00***#0.03**#0.00***#0.04**#0.00***#0.58#0.00***#0.00***#-
+
+Note: P-values for equal mean WTP between country pairs, computed from paired differences within each joint parameter draw (doi: 10.2307/3700938). The test uses 10000 valid Krinsky-Robb draws (of 10000 simulated) from the joint parameter distribution of Specification 1 (baseline), reused from Output/Models/Hypertension_Model_KrinskyRobbDraws.rds rather than re-simulated. Overlapping confidence intervals do not constitute a valid test of equality (Schenker and Gentleman 2001); this test provides the appropriate formal comparison. * p < 0.10, ** p < 0.05, *** p < 0.01, two-sided. Lower-triangular: row/column order matches REPORT_COUNTRIES (Austria through United States). Of the 45 country pairs, 36 (80.0%) are significant at 10%, 35 (77.8%) at 5%, 30 (66.7%) at 1%.

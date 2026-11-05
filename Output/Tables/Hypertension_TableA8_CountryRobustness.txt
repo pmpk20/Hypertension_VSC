@@ -1,0 +1,14 @@
+Country#N_Spec1#VSC_Spec1#VSC_Weighted#Pct_Weighted#N_NeverDiagnosed#VSC_NeverDiagnosed#Pct_NeverDiagnosed
+Austria#932#51360#49828#-3#589#49581#-3.5
+Belgium#954#39166#39012#-0.4#661#34327#-12.4
+Canada#959#61074#61073#0#645#57851#-5.3
+Finland#955#45056#44137#-2#535#40213#-10.7
+Greece#904#90058#91480#1.6#686#87679#-2.6
+Japan#986#30565#28906#-5.4#731#25281#-17.3
+Portugal#943#78353#78453#0.1#673#76931#-1.8
+Slovenia#957#54061#53465#-1.1#564#47992#-11.2
+United Kingdom#1021#48137#47987#-0.3#719#49385#2.6
+United States#885#74613#74549#-0.1#506#81308#9
+Pooled#9496#56780#56318#-0.8#6309#54659#-3.7
+
+Note: mean VSC in USD 2023 PPP. Specification 1 values match Table 1. Weighted: country fixed effects estimated by weighted pseudo-maximum likelihood. Never diagnosed: Specification 1 re-estimated on respondents never told by a doctor that they had high blood pressure. Percentage changes are relative to Specification 1.
