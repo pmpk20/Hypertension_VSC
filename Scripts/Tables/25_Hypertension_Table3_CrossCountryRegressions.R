@@ -213,7 +213,7 @@ CoefRows <- CoefRows[match(ROW_ORDER, CoefRows$Variable), ]
 
 
 DiagRows <- data.frame(
-  Variable = c("Observations", "R-squared", "Adj. R-squared", "Cook's D (Japan)", "Cook's D (most influential)"),
+  Variable = c("Observations", "Residual df", "R-squared", "Adj. R-squared", "Cook's D (Japan)", "Cook's D (most influential)"),
   stringsAsFactors = FALSE
 )
 
@@ -223,6 +223,7 @@ for (nm in names(Models)) {
   cd <- cooks.distance(m); names(cd) <- Country_Data$Country
   DiagRows[[nm]] <- c(
     "10",
+    as.character(df.residual(m)),
     sprintf("%.3f", summary(m)$r.squared),
     sprintf("%.3f", summary(m)$adj.r.squared),
     sprintf("%.3f", cd["Japan"]),

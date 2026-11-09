@@ -1,0 +1,4 @@
+Convention#Annuity_Factor#Pooled_Mean_VSC
+Continuous#8.63939264394274#56780.2649360257
+Discrete end-of-year#8.53020283677584#56062.6420156695
+Discrete beginning-of-year#8.78610892187911#57744.5212761396

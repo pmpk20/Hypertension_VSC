@@ -9,6 +9,7 @@
 #   Data/Other/OECD_PPP_ActualIndividualConsumption.csv.
 # Outputs:
 #   Output/Tables/Hypertension_Table1_CountryWillingnessToPayAndCaseValues.txt.
+#   Output/Tables/Hypertension_Table_DiscountingSensitivity.txt.
 # Software versions: renv.lock.
 
 
@@ -131,3 +132,30 @@ PaperTable1 %>%
 
 
 cat("\nPaper Table 1 written.\n")
+
+
+# *************************************************************
+#### Section 3: Discounting sensitivity ####
+# *************************************************************
+
+
+End_Of_Year_Factor <- (1 - (1 + Discount_Rate)^(-Payment_Period)) / Discount_Rate
+
+
+Discounting_Sensitivity <- data.frame(
+  Convention = c("Continuous", "Discrete end-of-year", "Discrete beginning-of-year"),
+  Annuity_Factor = c(Annuity_Factor, End_Of_Year_Factor,
+                     End_Of_Year_Factor * (1 + Discount_Rate))
+)
+
+
+## Rescale the cached pooled mean; no model refitting or new simulation draws.
+Discounting_Sensitivity$Pooled_Mean_VSC <-
+  KR$point["VSC_mean", "All"] * Discounting_Sensitivity$Annuity_Factor / Annuity_Factor
+
+
+Discounting_Sensitivity %>%
+  fwrite(sep = "#", file.path(Report_Tables, "Hypertension_Table_DiscountingSensitivity.txt"))
+
+
+print(Discounting_Sensitivity, row.names = FALSE)

@@ -14,8 +14,8 @@ Post-stratification weight#Ipsos post-stratification weight aligning each countr
 Survey completion time#Total elapsed time to complete the questionnaire.#SWACHE survey (Ipsos paradata)#Minutes#5.75#18.247#18.048#433.583
 Valuation section time#Elapsed time on the valuation (double-bounded dichotomous choice) section.#SWACHE survey (Ipsos paradata)#Minutes#0.6#2.071#4.99#211.583
 -- Individual-level (N = 9,496) --#""#""#""####
-BASE_Numeric#Base risk of developing high blood pressure over 10 years, as presented to the respondent#SWACHE survey#Continuous: percentage points (30 or 55)#30#44.998#12.248#55
-RR#Risk reduction offered (BASE% to BASE%-RR)#SWACHE survey#Continuous: percentage points (10 or 20)#10#14.974#5#20
+BASE_Numeric#Base risk of developing high blood pressure over 10 years, as presented to the respondent#SWACHE survey#Assigned scenario probability: 30% or 55%, determined by age group#30#44.998#12.248#55
+RR#Risk reduction offered (BASE% to BASE%-RR)#SWACHE survey#Randomly assigned reduction: 10 or 20 percentage points#10#14.974#5#20
 LogBid1#First (opening) bid level shown in the double-bounded dichotomous-choice sequence#SWACHE survey#Continuous: log of PPP-adjusted USD bid#2.996#5.28#1.346#7.499
 LogBid2#Second (follow-up) bid level, contingent on the response to LogBid1#SWACHE survey#Continuous: log of PPP-adjusted USD bid#1.954#5.299#1.463#8.627
 Dummy_Female#Are you...? (gender)#SWACHE survey#Binary: 1 = female, 0 = otherwise#0#0.514#0.5#1

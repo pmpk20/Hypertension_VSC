@@ -36,8 +36,8 @@ Data <- load_analysis_data()
 ## suffixes -- those are now the computed Min/Max columns instead).
 IndividualVars <- tibble::tribble(
   ~Variable,                        ~Definition,                                                                                                                    ~Coding,
-  "BASE_Numeric",                   "Base risk of developing high blood pressure over 10 years, as presented to the respondent",                                     "Continuous: percentage points (30 or 55)",
-  "RR",                             "Risk reduction offered (BASE% to BASE%-RR)",                                                                                     "Continuous: percentage points (10 or 20)",
+  "BASE_Numeric",                   "Base risk of developing high blood pressure over 10 years, as presented to the respondent",                                     "Assigned scenario probability: 30% or 55%, determined by age group",
+  "RR",                             "Risk reduction offered (BASE% to BASE%-RR)",                                                                                     "Randomly assigned reduction: 10 or 20 percentage points",
   "LogBid1",                        "First (opening) bid level shown in the double-bounded dichotomous-choice sequence",                                             "Continuous: log of PPP-adjusted USD bid",
   "LogBid2",                        "Second (follow-up) bid level, contingent on the response to LogBid1",                                                           "Continuous: log of PPP-adjusted USD bid",
   "Dummy_Female",                   "Are you...? (gender)",                                                                                                          "Binary: 1 = female, 0 = otherwise",

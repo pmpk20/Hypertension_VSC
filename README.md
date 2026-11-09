@@ -91,6 +91,7 @@ Hypertension_VSC/
 │       ├── Hypertension_TableA8_CountryRobustness.txt                                   # [output of 32]
 │       ├── Hypertension_Table_CrossCountryRegressionsCooksDistance.txt                  # [output of 25] influence in all six Table 3 models
 │       ├── Hypertension_Table_DeterminantEstimates.txt                                  # [output of 17]
+│       ├── Hypertension_Table_DiscountingSensitivity.txt                                # [output of 19] pooled VSC under continuous and discrete discounting
 │       ├── Hypertension_Table_KrinskyRobbIntervals.txt                                  # [output of 18]
 │       └── Hypertension_Table_RobustnessChecks.txt                                      # [output of 30]
 ├── Replication_Packages.txt                                                             # packages loaded directly

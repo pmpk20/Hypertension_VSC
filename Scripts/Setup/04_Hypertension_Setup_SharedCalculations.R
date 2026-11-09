@@ -82,7 +82,7 @@ Payment_Period <- 10     # t, years
 
 
 Annuity_Factor <-
-  (1 - exp(-Discount_Rate * Payment_Period)) / Discount_Rate  # 8.639387
+  (1 - exp(-Discount_Rate * Payment_Period)) / Discount_Rate  # 8.639393
 
 
 ## RR is recorded in the data in percentage points (values 10 and 20),
