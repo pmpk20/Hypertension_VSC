@@ -13,7 +13,7 @@
 
 - Data and R code for *The value of a statistical case of hypertension: Stated preference evidence from ten OECD countries*, including the supplementary information (Online Resource 1).
 - Authors: Peter King (University of Leeds), Alistair Hunt (University of Bath) and Mike Holland (EMRC).
-- Citation: see [CITATION.cff](CITATION.cff); please cite the paper and archive. Zenodo DOI to be added.
+- Citation: see [CITATION.cff](CITATION.cff); please cite the paper and archive ([doi:10.5281/zenodo.24116901](https://doi.org/10.5281/zenodo.24116901)).
 
 #### Acknowledgements:
 

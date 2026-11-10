@@ -7,6 +7,6 @@ You may share and adapt the data for any purpose, provided you give appropriate 
 When reusing the data, please cite:
 
 - the OECD SWACHE project, for which the survey was designed by the OECD Environment Directorate and fielded online by Ipsos;
-- the paper and this archive (Zenodo DOI to be added).
+- the paper and this archive: King, P., Hunt, A. and Holland, M. *The value of a statistical case of hypertension: Stated preference evidence from ten OECD countries — replication data and code*. Zenodo. [https://doi.org/10.5281/zenodo.24116901](https://doi.org/10.5281/zenodo.24116901).
 
 `Data/Other/` holds OECD reference statistics (purchasing power parities, GDP per capita and out-of-pocket health expenditure); cite the OECD as their source.

@@ -19,6 +19,14 @@ authors:
   - family-names: Holland
     given-names: Mike
     affiliation: "EMRC, UK"
+doi: 10.5281/zenodo.24116901
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.24116901
+    description: Concept DOI for all versions of the replication package
+  - type: doi
+    value: 10.5281/zenodo.24116902
+    description: Version DOI for V1.0.0
 repository-code: "https://github.com/pmpk20/Hypertension_VSC"
 license: CC-BY-4.0
 abstract: >-
