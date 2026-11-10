@@ -2,6 +2,10 @@
 
 ![R](https://img.shields.io/badge/R-4.5.0-276DC3?logo=r)
 ![Platform](https://img.shields.io/badge/Tested_on-Windows_11-0078D4)
+[![DOI](https://zenodo.org/badge/1447009716.svg)](https://doi.org/10.5281/zenodo.24116901)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![ORCID](https://img.shields.io/badge/ORCID-0000--0001--8550--466X-A6CE39?logo=orcid)](https://orcid.org/0000-0001-8550-466X)
+[![GitHub release](https://img.shields.io/github/v/release/pmpk20/Hypertension_VSC)](https://github.com/pmpk20/Hypertension_VSC/releases)
 
 ------------------------------------------------------------------------
 
