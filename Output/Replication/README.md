@@ -20,7 +20,7 @@ Run this from the repository root, creating `Output/Replication/` first if neede
 
 | File | Contents |
 | --- | --- |
-| `Replication_Run.log` | Unedited R batch transcript, including console output, warnings, completion messages and total runtime |
+| `Replication_Run.log` | R batch transcript, including console output, warnings, completion messages and total runtime; the local repository path is replaced with `<repository root>` and nothing else is edited |
 | `Step_Timings.csv` | Status and elapsed seconds for each of the 32 steps |
 | `Session_Info.txt` | R version, operating system, locale and loaded package versions |
 | `Environment_Check.csv` | Installed and recorded versions for all 204 lockfile packages |

@@ -136,7 +136,7 @@ During startup - Warning messages:
 > 
 > Run_Script("Scripts/Setup/01_Hypertension_Setup_RestoreEnvironment.R")
 Running Scripts/Setup/01_Hypertension_Setup_RestoreEnvironment.R
-- Project 'C:/Users/earpkin/OneDrive - University of Leeds/Attachments/SWACHE/Hypertension/ERE_Paper/HypertensionPaper/scratchpad_tmp/Hypertension_VSC_review' loaded. [renv 1.2.4]
+- Project '<repository root>' loaded. [renv 1.2.4]
 - One or more packages recorded in the lockfile are not installed.
 - Use `renv::status()` for more details.
 The following package(s) will be updated:
@@ -303,7 +303,7 @@ Successfully installed 76 packages in 0.46 seconds.
 > 
 > Run_Script("Scripts/Setup/02_Hypertension_Setup_CheckEnvironment.R")
 Running Scripts/Setup/02_Hypertension_Setup_CheckEnvironment.R
-- Project 'C:/Users/earpkin/OneDrive - University of Leeds/Attachments/SWACHE/Hypertension/ERE_Paper/HypertensionPaper/scratchpad_tmp/Hypertension_VSC_review' loaded. [renv 1.2.4]
+- Project '<repository root>' loaded. [renv 1.2.4]
 - The project is out-of-sync -- use `renv::status()` for details.
 Registered S3 methods overwritten by 'ggalt':
   method                  from   
@@ -375,7 +375,7 @@ There were 16 warnings (use warnings() to see them)
 > 
 > Run_Script("Scripts/Setup/04_Hypertension_Setup_SharedCalculations.R")
 Running Scripts/Setup/04_Hypertension_Setup_SharedCalculations.R
-here() starts at C:/Users/earpkin/OneDrive - University of Leeds/Attachments/SWACHE/Hypertension/ERE_Paper/HypertensionPaper/scratchpad_tmp/Hypertension_VSC_review
+here() starts at <repository root>
 
 Attaching package: 'data.table'
 
