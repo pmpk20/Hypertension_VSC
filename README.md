@@ -43,6 +43,14 @@ Rscript --vanilla 00_Hypertension_Setup_ReplicatePaper.R
 
 The master script installs the recorded packages (internet required), rebuilds the sample, estimates the models and writes the results. A rerun overwrites generated files. Allow about **29 minutes** with packages installed (Windows 11, Intel Core i5-1345U, 16 GB RAM), plus first-time package installation.
 
+To save the console output, warnings and errors as a plain-text replication log, create `Output/Replication/` if necessary and run this command in a terminal at the repository root (use `R.exe` instead of `R` in Windows PowerShell):
+
+```sh
+R CMD BATCH --vanilla 00_Hypertension_Setup_ReplicatePaper.R Output/Replication/Replication_Run.log
+```
+
+The command runs the same complete analysis and overwrites the log. Check its exit status and the final `Replication checks passed` and `Replication completed` messages. Results written directly to files remain in `Output/Tables/` and `Output/Figures/`. The release includes a completed run log, software versions, input checksums and step timings in [`Output/Replication/`](Output/Replication/README.md).
+
 For one result, find its script below and follow the prerequisites in its header. Steps 01-13 rebuild the sample; saved models in `Output/Models/` can be reused where the result script permits. Preparation also creates `Data/Intermediate/` and `Data/Data_AllCountries_SubsampledForAnalysis_Rebuilt.csv`, which are not tracked.
 
 ------------------------------------------------------------------------

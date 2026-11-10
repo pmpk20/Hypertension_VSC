@@ -24,12 +24,14 @@ options(repos = c(CRAN = "https://cloud.r-project.org"), timeout = 300)
 if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
 
 
-renv::restore(project = getwd(), lockfile = "renv.lock", prompt = FALSE)
-
-
 # *************************************************************
-#### Section 1: Load the restored environment ####
+#### Section 1: Activate and restore the project library ####
 # *************************************************************
 
 
+# Activate isolation first so packages in the machine library cannot satisfy the restore.
 renv::load(project = getwd())
+
+
+renv::restore(project = getwd(), library = renv::paths$library(project = getwd()),
+              lockfile = "renv.lock", prompt = FALSE)

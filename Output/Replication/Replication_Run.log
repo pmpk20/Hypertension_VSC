@@ -1,0 +1,2026 @@
+
+R version 4.5.0 (2025-04-11 ucrt) -- "How About a Twenty-Six"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+During startup - Warning messages:
+1: Setting LC_COLLATE=C.UTF-8 failed 
+2: Setting LC_CTYPE=C.UTF-8 failed 
+3: Setting LC_MONETARY=C.UTF-8 failed 
+4: Setting LC_TIME=C.UTF-8 failed 
+> #### Hypertension: Replicate Paper ####
+> # Purpose: Rebuild the analysis sample, estimate the models and produce every generated table and figure in the paper and supplementary information.
+> # Author: Anonymised for peer review.
+> # Prerequisites: None; start a fresh R session in the project root.
+> # Run from the project root: source("00_Hypertension_Setup_ReplicatePaper.R", encoding = "UTF-8")
+> # Inputs:
+> #   Data/SurveyData/*_Responses.xlsx and *_Timers.csv (ten countries).
+> #   Data/Other/ (purchasing power, gross domestic product and health spending).
+> #   renv.lock and Replication_Packages.txt.
+> # Outputs:
+> #   Data/Intermediate/ and Data/Data_AllCountries_SubsampledForAnalysis_Rebuilt.csv.
+> #   Output/Tables/, Output/Figures/ and Output/Models/.
+> #   Output/Replication/Input_Checksums.csv, Session_Info.txt and Step_Timings.csv.
+> # Software versions: renv.lock.
+> 
+> 
+> # *************************************************************
+> #### Section 0: Establish a reproducible session ####
+> # *************************************************************
+> 
+> 
+> if (!file.exists("HypertensionPaper.Rproj")) {
++   stop("Run this script from the HypertensionPaper project root.", call. = FALSE)
++ }
+> 
+> 
+> if (.Platform$OS.type == "windows") {
++   Locale_Result <- Sys.setlocale("LC_CTYPE", "English_United Kingdom.utf8")
++   if (!nzchar(Locale_Result)) stop("A UTF-8 locale is required for survey labels.")
++ }
+> 
+> 
+> options(encoding = "UTF-8", stringsAsFactors = FALSE, width = 120)
+> 
+> 
+> RNGkind("Mersenne-Twister", "Inversion", "Rejection")
+> 
+> 
+> set.seed(20261022)
+> 
+> 
+> if (nzchar(Sys.getenv("SWACHE_PPP_BASIS")) && Sys.getenv("SWACHE_PPP_BASIS") != "2023") {
++   stop("Paper replication requires SWACHE_PPP_BASIS=2023; unset the legacy override.")
++ }
+> 
+> 
+> # *************************************************************
+> #### Section 1: Check input files before estimation ####
+> # *************************************************************
+> 
+> 
+> Survey_Countries <- c("Austria", "Belgium", "Canada", "Finland", "Greece", "Japan", "Portugal",
++                       "Slovenia", "United_Kingdom", "United_States")
+> 
+> 
+> Required_Inputs <- c(
++   file.path("Data", "SurveyData", paste0("SWACHE_Hypertension_", Survey_Countries, "_Responses.xlsx")),
++   file.path("Data", "SurveyData", paste0("SWACHE_Hypertension_", Survey_Countries, "_Timers.csv")),
++   file.path("Data", "Other", c("OECD_GDP_Per_Capita.csv", "OECD_OutOfPocket_Health_Share.csv",
++                                "OECD_PPP_ActualIndividualConsumption.csv"))
++ )
+> 
+> 
+> Missing_Inputs <- Required_Inputs[!file.exists(Required_Inputs)]
+> 
+> 
+> if (length(Missing_Inputs)) stop("Missing inputs: ", paste(Missing_Inputs, collapse = ", "))
+> 
+> 
+> # *************************************************************
+> #### Section 2: Record inputs, software and step timings ####
+> # *************************************************************
+> 
+> 
+> dir.create("Output/Replication", recursive = TRUE, showWarnings = FALSE)
+> 
+> 
+> for (Output_Folder in c("Tables", "Figures", "Models")) {
++   dir.create(file.path("Output", Output_Folder), recursive = TRUE, showWarnings = FALSE)
++ }
+> 
+> 
+> write.csv(data.frame(File = Required_Inputs, MD5 = unname(tools::md5sum(Required_Inputs))),
++           "Output/Replication/Input_Checksums.csv", row.names = FALSE)
+> 
+> 
+> writeLines(capture.output(sessionInfo()), "Output/Replication/Session_Info.txt")
+> 
+> 
+> Step_Records <- data.frame(Script = character(), Status = character(), Seconds = numeric())
+> 
+> 
+> Run_Script <- function(Script_Path) {
++   message("Running ", Script_Path)
++   Started_At <- proc.time()[["elapsed"]]
++   Step_Status <- "Failed"
++   Initial_Sinks <- sink.number()
++   on.exit({
++     while (sink.number() > Initial_Sinks) sink()
++     Step_Records <<- rbind(Step_Records, data.frame(Script = Script_Path, Status = Step_Status,
++                                                  Seconds = proc.time()[["elapsed"]] - Started_At))
++     write.csv(Step_Records, "Output/Replication/Step_Timings.csv", row.names = FALSE)
++     writeLines(capture.output(sessionInfo()), "Output/Replication/Session_Info.txt")
++   })
++   source(Script_Path, local = .GlobalEnv, encoding = "UTF-8")
++   Step_Status <- "Passed"
++ }
+> 
+> 
+> # *************************************************************
+> #### Section 3: Prepare packages and shared calculations ####
+> # *************************************************************
+> 
+> 
+> Run_Script("Scripts/Setup/01_Hypertension_Setup_RestoreEnvironment.R")
+Running Scripts/Setup/01_Hypertension_Setup_RestoreEnvironment.R
+- Project 'C:/Users/earpkin/OneDrive - University of Leeds/Attachments/SWACHE/Hypertension/ERE_Paper/HypertensionPaper/scratchpad_tmp/Hypertension_VSC_review' loaded. [renv 1.2.4]
+- One or more packages recorded in the lockfile are not installed.
+- Use `renv::status()` for more details.
+The following package(s) will be updated:
+
+# Bioconductor ---------------------------------------------------------------
+- BiocVersion      [* -> 3.17.1]
+- Icens            [* -> 1.72.0]
+
+# CRAN -----------------------------------------------------------------------
+- AER              [* -> 1.2-17]
+- DBI              [* -> 1.3.0]
+- DCchoice         [* -> 0.2.0]
+- Deriv            [* -> 4.3.5]
+- Ecdat            [* -> 0.4.7]
+- Formula          [* -> 1.2-6]
+- MLEcens          [* -> 0.1-7.1]
+- MatrixModels     [* -> 0.5-4]
+- RcppArmadillo    [* -> 15.6.0-1]
+- RcppEigen        [* -> 0.3.4.0.2]
+- Rdpack           [* -> 2.6.6]
+- SparseM          [* -> 1.84-2]
+- abind            [* -> 1.4-8]
+- backports        [* -> 1.5.1]
+- blob             [* -> 1.3.0]
+- broom            [* -> 1.0.13]
+- callr            [* -> 3.8.0]
+- car              [* -> 3.1-5]
+- carData          [* -> 3.0-6]
+- cellranger       [* -> 1.1.0]
+- commonmark       [* -> 2.0.0]
+- conflicted       [* -> 1.2.0]
+- cowplot          [* -> 1.2.0]
+- dbplyr           [* -> 2.6.0]
+- distributional   [* -> 0.9.0]
+- doBy             [* -> 4.7.2]
+- dtplyr           [* -> 1.3.3]
+- forcats          [* -> 1.0.1]
+- forecast         [* -> 9.0.2]
+- fracdiff         [* -> 1.5-4]
+- gargle           [* -> 1.6.1]
+- ggdist           [* -> 3.3.3]
+- googledrive      [* -> 2.1.2]
+- googlesheets4    [* -> 1.1.2]
+- haven            [* -> 2.5.5]
+- here             [* -> 1.0.2]
+- ids              [* -> 1.0.1]
+- interval         [* -> 1.1-1.0]
+- janitor          [* -> 2.2.1]
+- litedown         [* -> 0.11]
+- lme4             [* -> 2.0-6]
+- lmtest           [* -> 0.9-40]
+- lubridate        [* -> 1.9.5]
+- markdown         [* -> 2.0]
+- minqa            [* -> 1.2.8]
+- modelr           [* -> 0.1.11]
+- nloptr           [* -> 2.2.1]
+- numDeriv         [* -> 2016.8-1.1]
+- pbkrtest         [* -> 0.5.5]
+- perm             [* -> 1.0-0.4]
+- png              [* -> 0.1-9]
+- processx         [* -> 3.9.0]
+- ps               [* -> 1.9.3]
+- quadprog         [* -> 1.5-8]
+- quantreg         [* -> 6.1]
+- ragg             [* -> 1.5.2]
+- rbibutils        [* -> 2.4.1]
+- readxl           [* -> 1.5.0]
+- reformulas       [* -> 0.4.4]
+- rematch          [* -> 2.0.0]
+- rematch2         [* -> 2.1.2]
+- reprex           [* -> 2.1.1]
+- rprojroot        [* -> 2.1.1]
+- rstudioapi       [* -> 0.19.0]
+- sandwich         [* -> 3.1-3]
+- snakecase        [* -> 0.11.1]
+- systemfonts      [* -> 1.3.2]
+- textshaping      [* -> 1.0.5]
+- tidyverse        [* -> 2.0.0]
+- timeDate         [* -> 4052.112]
+- timechange       [* -> 0.4.0]
+- urca             [* -> 1.3-4]
+- uuid             [* -> 1.2-2]
+- zoo              [* -> 1.9-0]
+
+# Installing packages --------------------------------------------------------
+[32m✔[0m RcppArmadillo 15.6.0-1                   [linked from cache]
+[32m✔[0m rstudioapi 0.19.0                        [linked from cache]
+[32m✔[0m AER 1.2-17                               [linked from cache]
+[32m✔[0m nloptr 2.2.1                             [linked from cache]
+[32m✔[0m ragg 1.5.2                               [linked from cache]
+[32m✔[0m minqa 1.2.8                              [linked from cache]
+[32m✔[0m janitor 2.2.1                            [linked from cache]
+[32m✔[0m forcats 1.0.1                            [linked from cache]
+[32m✔[0m MLEcens 0.1-7.1                          [linked from cache]
+[32m✔[0m distributional 0.9.0                     [linked from cache]
+[32m✔[0m haven 2.5.5                              [linked from cache]
+[32m✔[0m broom 1.0.13                             [linked from cache]
+[32m✔[0m cellranger 1.1.0                         [linked from cache]
+[32m✔[0m Formula 1.2-6                            [linked from cache]
+[32m✔[0m googlesheets4 1.1.2                      [linked from cache]
+[32m✔[0m pbkrtest 0.5.5                           [linked from cache]
+[32m✔[0m sandwich 3.1-3                           [linked from cache]
+[32m✔[0m zoo 1.9-0                                [linked from cache]
+[32m✔[0m lubridate 1.9.5                          [linked from cache]
+[32m✔[0m uuid 1.2-2                               [linked from cache]
+[32m✔[0m conflicted 1.2.0                         [linked from cache]
+[32m✔[0m commonmark 2.0.0                         [linked from cache]
+[32m✔[0m rbibutils 2.4.1                          [linked from cache]
+[32m✔[0m snakecase 0.11.1                         [linked from cache]
+[32m✔[0m dtplyr 1.3.3                             [linked from cache]
+[32m✔[0m numDeriv 2016.8-1.1                      [linked from cache]
+[32m✔[0m rematch2 2.1.2                           [linked from cache]
+[32m✔[0m ps 1.9.3                                 [linked from cache]
+[32m✔[0m rprojroot 2.1.1                          [linked from cache]
+[32m✔[0m textshaping 1.0.5                        [linked from cache]
+[32m✔[0m timechange 0.4.0                         [linked from cache]
+[32m✔[0m abind 1.4-8                              [linked from cache]
+[32m✔[0m here 1.0.2                               [linked from cache]
+[32m✔[0m gargle 1.6.1                             [linked from cache]
+[32m✔[0m backports 1.5.1                          [linked from cache]
+[32m✔[0m carData 3.0-6                            [linked from cache]
+[32m✔[0m DBI 1.3.0                                [linked from cache]
+[32m✔[0m quantreg 6.1                             [linked from cache]
+[32m✔[0m ids 1.0.1                                [linked from cache]
+[32m✔[0m interval 1.1-1.0                         [linked from cache]
+[32m✔[0m lmtest 0.9-40                            [linked from cache]
+[32m✔[0m googledrive 2.1.2                        [linked from cache]
+[32m✔[0m quadprog 1.5-8                           [linked from cache]
+[32m✔[0m callr 3.8.0                              [linked from cache]
+[32m✔[0m Icens 1.72.0                             [linked from cache]
+[32m✔[0m doBy 4.7.2                               [linked from cache]
+[32m✔[0m car 3.1-5                                [linked from cache]
+[32m✔[0m Deriv 4.3.5                              [linked from cache]
+[32m✔[0m BiocVersion 3.17.1                       [linked from cache]
+[32m✔[0m ggdist 3.3.3                             [linked from cache]
+[32m✔[0m markdown 2.0                             [linked from cache]
+[32m✔[0m SparseM 1.84-2                           [linked from cache]
+[32m✔[0m reformulas 0.4.4                         [linked from cache]
+[32m✔[0m litedown 0.11                            [linked from cache]
+[32m✔[0m urca 1.3-4                               [linked from cache]
+[32m✔[0m forecast 9.0.2                           [linked from cache]
+[32m✔[0m timeDate 4052.112                        [linked from cache]
+[32m✔[0m rematch 2.0.0                            [linked from cache]
+[32m✔[0m RcppEigen 0.3.4.0.2                      [linked from cache]
+[32m✔[0m Ecdat 0.4.7                              [linked from cache]
+[32m✔[0m DCchoice 0.2.0                           [linked from cache]
+[32m✔[0m systemfonts 1.3.2                        [linked from cache]
+[32m✔[0m Rdpack 2.6.6                             [linked from cache]
+[32m✔[0m processx 3.9.0                           [linked from cache]
+[32m✔[0m modelr 0.1.11                            [linked from cache]
+[32m✔[0m readxl 1.5.0                             [linked from cache]
+[32m✔[0m dbplyr 2.6.0                             [linked from cache]
+[32m✔[0m tidyverse 2.0.0                          [linked from cache]
+[32m✔[0m png 0.1-9                                [linked from cache]
+[32m✔[0m MatrixModels 0.5-4                       [linked from cache]
+[32m✔[0m fracdiff 1.5-4                           [linked from cache]
+[32m✔[0m blob 1.3.0                               [linked from cache]
+[32m✔[0m perm 1.0-0.4                             [linked from cache]
+[32m✔[0m reprex 2.1.1                             [linked from cache]
+[32m✔[0m lme4 2.0-6                               [linked from cache]
+[32m✔[0m cowplot 1.2.0                            [linked from cache]
+Successfully installed 76 packages in 0.46 seconds.
+> 
+> 
+> Run_Script("Scripts/Setup/02_Hypertension_Setup_CheckEnvironment.R")
+Running Scripts/Setup/02_Hypertension_Setup_CheckEnvironment.R
+- Project 'C:/Users/earpkin/OneDrive - University of Leeds/Attachments/SWACHE/Hypertension/ERE_Paper/HypertensionPaper/scratchpad_tmp/Hypertension_VSC_review' loaded. [renv 1.2.4]
+- The project is out-of-sync -- use `renv::status()` for details.
+Registered S3 methods overwritten by 'ggalt':
+  method                  from   
+  grobHeight.absoluteGrob ggplot2
+  grobWidth.absoluteGrob  ggplot2
+  grobX.absoluteGrob      ggplot2
+  grobY.absoluteGrob      ggplot2
+Environment checks passed: 204 recorded versions and 25 direct packages.
+> 
+> 
+> Run_Script("Scripts/Models/03_Hypertension_Model_DefineEstimators.R")
+Running Scripts/Models/03_Hypertension_Model_DefineEstimators.R
+Loading required package: car
+Loading required package: carData
+Loading required package: lmtest
+Loading required package: zoo
+
+Attaching package: 'zoo'
+
+The following objects are masked from 'package:base':
+
+    as.Date, as.Date.numeric
+
+Loading required package: sandwich
+Loading required package: survival
+
+Attaching package: 'Ecdat'
+
+The following object is masked from 'package:carData':
+
+    Mroz
+
+The following object is masked from 'package:datasets':
+
+    Orange
+
+
+Attaching package: 'Ecfun'
+
+The following object is masked from 'package:base':
+
+    sign
+
+Loading required package: perm
+Loading required package: Icens
+Loading required package: MLEcens
+Depends on Icens package available on bioconductor. 
+To install use for example:
+install.packages('BiocManager')
+BiocManager::install('Icens')
+Loading required package: ggplot2
+
+Attaching package: 'dplyr'
+
+The following object is masked from 'package:car':
+
+    recode
+
+The following objects are masked from 'package:stats':
+
+    filter, lag
+
+The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union
+
+There were 16 warnings (use warnings() to see them)
+> 
+> 
+> Run_Script("Scripts/Setup/04_Hypertension_Setup_SharedCalculations.R")
+Running Scripts/Setup/04_Hypertension_Setup_SharedCalculations.R
+here() starts at C:/Users/earpkin/OneDrive - University of Leeds/Attachments/SWACHE/Hypertension/ERE_Paper/HypertensionPaper/scratchpad_tmp/Hypertension_VSC_review
+
+Attaching package: 'data.table'
+
+The following objects are masked from 'package:dplyr':
+
+    between, first, last
+
+The following objects are masked from 'package:zoo':
+
+    yearmon, yearqtr
+
+
+Attaching package: 'tidyr'
+
+The following object is masked from 'package:magrittr':
+
+    extract
+
+Analysis helpers loaded. PPP basis = AIC2023 | annuity factor = 8.639393 
+Warning messages:
+1: package 'here' was built under R version 4.5.3 
+2: package 'magrittr' was built under R version 4.5.3 
+3: package 'data.table' was built under R version 4.5.3 
+4: package 'tidyr' was built under R version 4.5.3 
+> 
+> 
+> # *************************************************************
+> #### Section 4: Rebuild the analysis sample ####
+> # *************************************************************
+> 
+> 
+> library(here)
+> 
+> 
+> library(tidyverse)
+── Attaching core tidyverse packages ──────────────────────────────────────────────────────────────── tidyverse 2.0.0 ──
+✔ forcats   1.0.1     ✔ readr     2.2.0
+✔ lubridate 1.9.5     ✔ stringr   1.6.0
+✔ purrr     1.2.2     ✔ tibble    3.3.1
+── Conflicts ────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+✖ data.table::between() masks dplyr::between()
+✖ tidyr::extract()      masks magrittr::extract()
+✖ dplyr::filter()       masks stats::filter()
+✖ data.table::first()   masks dplyr::first()
+✖ lubridate::hour()     masks data.table::hour()
+✖ lubridate::isoweek()  masks data.table::isoweek()
+✖ lubridate::isoyear()  masks data.table::isoyear()
+✖ dplyr::lag()          masks stats::lag()
+✖ data.table::last()    masks dplyr::last()
+✖ lubridate::mday()     masks data.table::mday()
+✖ lubridate::minute()   masks data.table::minute()
+✖ lubridate::month()    masks data.table::month()
+✖ lubridate::quarter()  masks data.table::quarter()
+✖ dplyr::recode()       masks car::recode()
+✖ lubridate::second()   masks data.table::second()
+✖ purrr::set_names()    masks magrittr::set_names()
+✖ purrr::some()         masks car::some()
+✖ purrr::transpose()    masks data.table::transpose()
+✖ lubridate::wday()     masks data.table::wday()
+✖ lubridate::week()     masks data.table::week()
+✖ lubridate::yday()     masks data.table::yday()
+✖ lubridate::year()     masks data.table::year()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+Warning messages:
+1: package 'tidyverse' was built under R version 4.5.3 
+2: package 'tibble' was built under R version 4.5.3 
+3: package 'readr' was built under R version 4.5.3 
+4: package 'purrr' was built under R version 4.5.3 
+5: package 'stringr' was built under R version 4.5.3 
+6: package 'forcats' was built under R version 4.5.3 
+7: package 'lubridate' was built under R version 4.5.3 
+> 
+> 
+> library(data.table)
+> 
+> 
+> library(janitor)
+
+Attaching package: 'janitor'
+
+The following objects are masked from 'package:stats':
+
+    chisq.test, fisher.test
+
+Warning message:
+package 'janitor' was built under R version 4.5.3 
+> 
+> 
+> WORK <- function(...) file.path(here::here("Data", "Intermediate"), ...)
+> 
+> 
+> SWACHE_KEY <- c("Country", "Respondent_Serial")
+> 
+> 
+> Run_Script("Scripts/Setup/05_Hypertension_Setup_CleanFirstFiveCountries.R")
+Running Scripts/Setup/05_Hypertension_Setup_CleanFirstFiveCountries.R
+,Country,Threshold,N_Fail,N_Pass
+1,Austria,393.6,32 (3%),1190 (97%)
+2,Belgium,387.84,42 (3%),1172 (97%)
+3,Canada,407.76,46 (4%),1178 (96%)
+4,Slovenia,425.28,23 (2%),1198 (98%)
+5,United Kingdom,354.24,26 (2%),1204 (98%)
+,Country,Threshold,N_Fail,N_Pass
+1,Austria,40.32,95 (8%),1127 (92%)
+2,Belgium,38.88,100 (8%),1114 (92%)
+3,Canada,41.28,103 (8%),1121 (92%)
+4,Slovenia,43.2,70 (6%),1151 (94%)
+5,United Kingdom,35.52,66 (5%),1164 (95%)
+,Country,NN,NY,YN,YY
+1,Austria,421 (34%),226 (18%),204 (17%),371 (30%)
+2,Belgium,427 (35%),255 (21%),220 (18%),312 (26%)
+3,Canada,346 (28%),211 (17%),253 (21%),414 (34%)
+4,Slovenia,407 (33%),213 (17%),227 (19%),374 (31%)
+5,United Kingdom,410 (33%),261 (21%),201 (16%),358 (29%)
+,12,15,16,26,36,45,47,48,77,110,130,140,150,230,330,400,430,690,970,1200,1300,2000
+30,59,61,133,62,129,131,135,144,129,125,139,132,130,136,118,142,248,132,64,60,123,60
+55,93,94,172,92,176,174,169,161,175,181,170,170,175,170,186,167,361,175,90,92,183,93
+`geom_smooth()` using formula = 'y ~ x'
+  [assert] 01_: all ten wave-1 income recodes are complete.
+  [impute] UK             imputed 148 of 148 flagged rows by keyed join (0 flagged rows had missing predictors and keep their reported value).
+  [impute] Belgium        imputed 184 of 184 flagged rows by keyed join (0 flagged rows had missing predictors and keep their reported value).
+  [impute] Austria        imputed 104 of 104 flagged rows by keyed join (0 flagged rows had missing predictors and keep their reported value).
+  [impute] Slovenia       imputed 127 of 127 flagged rows by keyed join (0 flagged rows had missing predictors and keep their reported value).
+  [impute] Canada         imputed 114 of 114 flagged rows by keyed join (0 flagged rows had missing predictors and keep their reported value).
+Warning messages:
+1: package 'haven' was built under R version 4.5.3 
+2: Unreplaced values treated as NA as `.x` is not compatible.
+Please specify replacements exhaustively or supply `.default`. 
+> 
+> 
+> Run_Script("Scripts/Setup/06_Hypertension_Setup_PurchasingPowerFirstFiveCountries.R")
+Running Scripts/Setup/06_Hypertension_Setup_PurchasingPowerFirstFiveCountries.R
+[02_] wave-1 PPP basis: 2023  (default; internally consistent across all ten countries -- does NOT reproduce the published file, moves LogBid1/LogBid2 on all wave-1 rows)
+> 
+> 
+> Run_Script("Scripts/Setup/07_Hypertension_Setup_CleanNextThreeCountries.R")
+Running Scripts/Setup/07_Hypertension_Setup_CleanNextThreeCountries.R
+
+Attaching package: 'scales'
+
+The following object is masked from 'package:purrr':
+
+    discard
+
+The following object is masked from 'package:readr':
+
+    col_factor
+
+,Country,Threshold,N_Fail,N_Pass
+1,Finland,371.76,29 (2%),1189 (98%)
+2,Greece,403.2,45 (4%),1160 (96%)
+3,Portugal,418.56,45 (4%),1173 (96%)
+,Country,Threshold,N_Fail,N_Pass
+1,Finland,40.8,78 (6%),1140 (94%)
+2,Greece,43.68,65 (5%),1140 (95%)
+3,Portugal,45.6,69 (6%),1149 (94%)
+,Country,Min,1st Qu.,Median,Mean,3rd Qu.,Max,SD
+1,Survey time,Survey time,Survey time,Survey time,Survey time,Survey time,Survey time,Survey time
+2,Finland,298,595,774.5,997.154,1045.5,18971,1094.304
+3,Greece,289,617,840,1082.823,1165,13438,1027.855
+4,Portugal,299,654.25,872,1052.593,1176.75,11904,801.698
+5,Valuation time,Valuation time,Valuation time,Valuation time,Valuation time,Valuation time,Valuation time,Valuation time
+6,Finland,14,63,85,110.163,115,4819,211.115
+7,Greece,15,66,91,130.771,124,12695,433.416
+8,Portugal,17,71,95,121.27,132,2312,122.283
+,Country,Min,1st Qu.,Median,Mean,3rd Qu.,Max,SD
+1,ProbTest0,ProbTest0,ProbTest0,ProbTest0,ProbTest0,ProbTest0,ProbTest0,ProbTest0
+2,Finland,298,594.25,822,1125.871,1077,12896,1523.18
+3,Greece,340,588,822,1137.412,1156,7948,1112.543
+4,Portugal,317,661.5,892,1039.453,1226,3190,576.952
+5,Finland,17,61.25,86.5,149.103,116,4819,479.358
+6,Greece,17,64,88,130.918,121,4516,306.733
+7,Portugal,23,70.5,101,119.517,145.5,472,78.534
+8,ProbTest1,ProbTest1,ProbTest1,ProbTest1,ProbTest1,ProbTest1,ProbTest1,ProbTest1
+9,Finland,298,598,769.5,972.769,1036.5,18971,991.539
+10,Greece,289,632.25,849,1069.034,1164.5,13438,1005.482
+11,Portugal,299,654,866,1055.221,1166.5,11904,839.664
+12,Finland,14,63,85,102.786,114.25,1777,96.585
+13,Greece,15,66,91,130.734,124,12695,460.061
+14,Portugal,17,71,95,121.621,129,2312,129.295
+,12,18,35,36,53,100,110,160,310,330,480,920,960,1400
+30,126,59,128,113,122,137,105,140,122,110,126,59,66,69
+55,176,93,174,191,183,163,199,165,180,196,177,92,86,84
+`geom_smooth()` using formula = 'y ~ x'
+`geom_smooth()` using formula = 'y ~ x'
+`geom_smooth()` using formula = 'y ~ x'
+,Country,Question,Excellent,Fair,Good,Poor,Very poor
+1,Finland,A3,129 (10.6%),491 (40.3%),523 (42.9%),67 (5.5%),8 (0.7%)
+2,Greece,A3,78 (6.5%),424 (35.2%),440 (36.5%),209 (17.3%),54 (4.5%)
+3,Portugal,A3,48 (3.9%),647 (53.1%),400 (32.8%),106 (8.7%),17 (1.4%)
+,Country,Question,No,Yes
+1,Finland,H3,94 (7.7%),1124 (92.3%)
+2,Finland,H4,121 (9.9%),1097 (90.1%)
+3,Greece,H3,117 (9.7%),1088 (90.3%)
+4,Greece,H4,143 (11.9%),1062 (88.1%)
+5,Portugal,H3,51 (4.2%),1167 (95.8%)
+6,Portugal,H4,169 (13.9%),1049 (86.1%)
+,Country,Question,Neither agree nor disagree,Somewhat agree,Somewhat disagree,Strongly agree,Strongly disagree
+1,Finland,A1_1,134 (11.0%),481 (39.5%),31 (2.5%),567 (46.6%),5 (0.4%)
+2,Finland,A1_2,182 (14.9%),607 (49.8%),51 (4.2%),365 (30.0%),13 (1.1%)
+3,Finland,A1_3,131 (10.8%),574 (47.1%),24 (2.0%),472 (38.8%),17 (1.4%)
+4,Greece,A1_1,100 (8.3%),406 (33.7%),13 (1.1%),683 (56.7%),3 (0.2%)
+5,Greece,A1_2,170 (14.1%),535 (44.4%),17 (1.4%),482 (40.0%),1 (0.1%)
+6,Greece,A1_3,164 (13.6%),487 (40.4%),11 (0.9%),538 (44.6%),5 (0.4%)
+7,Portugal,A1_1,84 (6.9%),400 (32.8%),23 (1.9%),698 (57.3%),13 (1.1%)
+8,Portugal,A1_2,107 (8.8%),521 (42.8%),11 (0.9%),574 (47.1%),5 (0.4%)
+9,Portugal,A1_3,88 (7.2%),359 (29.5%),11 (0.9%),754 (61.9%),6 (0.5%)
+Warning message:
+package 'scales' was built under R version 4.5.3 
+> 
+> 
+> Run_Script("Scripts/Setup/08_Hypertension_Setup_MergeFirstFiveNextThree.R")
+Running Scripts/Setup/08_Hypertension_Setup_MergeFirstFiveNextThree.R
+  [assert] 05_: all six EL/PT/FI income recodes are complete.
+  [impute] Finland        imputed 64 of 64 flagged rows by keyed join (0 flagged rows had missing predictors and keep their reported value).
+  [impute] Portugal       imputed 55 of 55 flagged rows by keyed join (0 flagged rows had missing predictors and keep their reported value).
+  [impute] Greece         imputed 62 of 62 flagged rows by keyed join (0 flagged rows had missing predictors and keep their reported value).
+> 
+> 
+> Run_Script("Scripts/Setup/09_Hypertension_Setup_CleanUnitedStates.R")
+Running Scripts/Setup/09_Hypertension_Setup_CleanUnitedStates.R
+,Country,Threshold,N_Fail,N_Pass
+1,United States,421.44,43 (4%),1168 (96%)
+,Country,Threshold,N_Fail,N_Pass
+1,United States,43.68,103 (9%),1108 (91%)
+,Country,The risk of getting a cold is higher in group A,The risk of getting a cold is higher in group B
+1,United States,241 (19.9%),970 (80.1%)
+,Country,NN,NY,YN,YY
+1,United States,298 (24.6%),228 (18.8%),235 (19.4%),450 (37.2%)
+,20,60,180,540,1600,
+Current risk,17,39,62,50,37,0
+Risk reduction,55,96,87,86,34,0
+Current risk,21,58,84,105,53,0
+Risk reduction,59,101,72,66,29,0
+,20,60,180,540,1600
+30,72,135,149,136,71
+55,80,159,156,171,82
+`geom_smooth()` using formula = 'y ~ x'
+`geom_smooth()` using formula = 'y ~ x'
+`geom_smooth()` using formula = 'y ~ x'
+,Country,Question,Excellent,Fair,Good,Poor,Very poor
+1,United States,A3,132 (10.9%),423 (34.9%),541 (44.7%),94 (7.8%),21 (1.7%)
+,Country,Question,Excellent,Fair,Good,Poor,Very poor
+1,United States,A4,326 (26.9%),190 (15.7%),672 (55.5%),19 (1.6%),4 (0.3%)
+,Country,Question,No,Yes
+1,United States,H3,146 (12.1%),1065 (87.9%)
+2,United States,H4,304 (25.1%),907 (74.9%)
+,Country,Question,…agree,…disagree
+1,United States,H5,673 (55.6%),538 (44.4%)
+,Country,Question,Neither agree nor disagree,Somewhat agree,Somewhat disagree,Strongly agree,Strongly disagree
+1,United States,A1_1,101 (8.3%),389 (32.1%),22 (1.8%),681 (56.2%),18 (1.5%)
+2,United States,A1_2,131 (10.8%),514 (42.4%),38 (3.1%),506 (41.8%),22 (1.8%)
+3,United States,A1_3,99 (8.2%),448 (37.0%),23 (1.9%),621 (51.3%),20 (1.7%)
+> 
+> 
+> Run_Script("Scripts/Setup/10_Hypertension_Setup_MergeFirstEightPlusUnitedStates.R")
+Running Scripts/Setup/10_Hypertension_Setup_MergeFirstEightPlusUnitedStates.R
+  [assert] 06_: both US income recodes are complete.
+  [impute] United States  imputed 49 of 49 flagged rows by keyed join (0 flagged rows had missing predictors and keep their reported value).
+> 
+> 
+> Run_Script("Scripts/Setup/11_Hypertension_Setup_CleanJapan.R")
+Running Scripts/Setup/11_Hypertension_Setup_CleanJapan.R
+,Country,Threshold,N_Survey_Fail,N_Survey_Pass,N_Valuation_Fail,N_Valuation_Pass
+1,Japan,36.96,34 (3%),1185 (97%),120 (10%),1099 (90%)
+  [assert] 08_: both Japanese income recodes are complete.
+  [impute] Japan          imputed 190 of 190 flagged rows by keyed join (0 flagged rows had missing predictors and keep their reported value).
+`geom_smooth()` using formula = 'y ~ x'
+Country,Question,Very confident,Somewhat confident,Neither doubtful nor confident,Somewhat doubtful,Very doubtful
+Japan,A2,119 (9.8%),561 (46.0%),479 (39.3%),51 (4.2%),9 (0.7%)
+,Country,Question,Excellent,Fair,Good,Poor,Very poor
+1,Japan,A3,12 (1.0%),562 (46.1%),42 (3.4%),512 (42.0%),91 (7.5%)
+,Country,Question,Excellent,Fair,Good,Poor,Very poor
+1,Japan,A4,16 (1.3%),780 (64.0%),114 (9.4%),285 (23.4%),24 (2.0%)
+,Country,Question,No,Yes
+1,Japan,H3,295 (24.2%),924 (75.8%)
+2,Japan,H4,229 (18.8%),990 (81.2%)
+,Country,Question,…agree,…disagree
+1,Japan,H5,232 (19.0%),987 (81.0%)
+,Country,Question,Strongly agree,Somewhat agree,Neither agree nor disagree,Somewhat disagree,Strongly disagree
+1,Japan,A1_1,295 (24.2%),597 (49.0%),273 (22.4%),47 (3.9%),7 (0.6%)
+2,Japan,A1_2,222 (18.2%),668 (54.8%),274 (22.5%),49 (4.0%),6 (0.5%)
+3,Japan,A1_3,183 (15.0%),628 (51.5%),370 (30.4%),31 (2.5%),7 (0.6%)
+> 
+> 
+> Run_Script("Scripts/Setup/12_Hypertension_Setup_MergeAllWithJapan.R")
+Running Scripts/Setup/12_Hypertension_Setup_MergeAllWithJapan.R
+> 
+> 
+> Run_Script("Scripts/Setup/13_Hypertension_Setup_BuildAnalysisSample.R")
+Running Scripts/Setup/13_Hypertension_Setup_BuildAnalysisSample.R
+[setup] merged file: 12182 rows x 329 cols
+[setup] key check: 12182 rows, 1230 distinct Respondent_Serial, composite key unique.
+[harmonise] INC1_MissingDummy: Japan switched from INCJP2 (n=137) to INCJP1 (n=177) of 986 Japanese rows; all other countries unchanged.
+[setup] analysis file: 9496 rows x 54 cols
+
+       Austria        Belgium         Canada        Finland         Greece          Japan       Portugal       Slovenia 
+           932            954            959            955            904            986            943            957 
+United Kingdom  United States 
+          1021            885 
+[setup] wrote Data/Data_AllCountries_SubsampledForAnalysis_Rebuilt.csv
+> 
+> 
+> # *************************************************************
+> #### Section 5: Fit the models and produce the main-text results ####
+> # *************************************************************
+> 
+> 
+> Run_Script("Scripts/Models/14_Hypertension_Model_PooledAndCountryModels.R")
+Running Scripts/Models/14_Hypertension_Model_PooledAndCountryModels.R
+Analysis helpers loaded. PPP basis = AIC2023 | annuity factor = 8.639393 
+
+Fitting country-specific models...
+   Austria 
+   Belgium 
+   Canada 
+   Finland 
+   Greece 
+   Japan 
+   Portugal 
+   Slovenia 
+   United Kingdom 
+   United States 
+
+Fitting pooled model...
+> 
+> 
+> Run_Script("Scripts/Tables/15_Hypertension_TableA5_CountryModels.R")
+Running Scripts/Tables/15_Hypertension_TableA5_CountryModels.R
+Analysis helpers loaded. PPP basis = AIC2023 | annuity factor = 8.639393 
+             Variable           Austria           Belgium            Canada           Finland            Greece
+1                Base     0.002 (0.003)    -0.002 (0.003) -0.009*** (0.003)   -0.006* (0.003)  -0.009** (0.004)
+2      Risk Reduction   0.019** (0.008)  0.045*** (0.008)  0.034*** (0.008)  0.045*** (0.008)  0.032*** (0.009)
+3          Log (cost) -0.531*** (0.022) -0.546*** (0.021) -0.535*** (0.021) -0.541*** (0.020) -0.552*** (0.023)
+4           Intercept  2.831*** (0.273)  3.390*** (0.558)  2.429*** (0.568)  2.256*** (0.344)  3.881*** (0.259)
+5        Observations               932               954               959               955               904
+6                 AIC          2382.014          2438.593          2538.707          2611.285          2321.661
+7                 BIC          2406.201          2462.897          2563.036          2635.594          2345.695
+8      Log-likelihood         -1186.007         -1214.297         -1264.353         -1300.643         -1155.830
+9             LR Stat             6.275            33.616            30.633            38.200            22.341
+10       CS: Mean WTP               779               621               987               712             1 514
+11     CS: Median WTP               209               143               320               197               549
+12       CS: Mean VSC            47 822            35 888            58 238            40 722            90 736
+13     CS: Median VSC            15 472            11 203            15 539            12 751            30 791
+14   Pooled: Mean WTP               878               665             1 043               771             1 526
+15 Pooled: Median WTP               211               147               346               187               523
+16   Pooled: Mean VSC            51 360            39 166            61 074            45 056            90 058
+17 Pooled: Median VSC            13 656             9 948            16 428            11 772            28 858
+               Japan          Portugal          Slovenia    United Kingdom     United States
+1   0.013*** (0.003)    -0.004 (0.003)    -0.001 (0.003) -0.019*** (0.003) -0.018*** (0.004)
+2   0.033*** (0.008)  0.051*** (0.009)   0.020** (0.008)  0.048*** (0.008)  0.044*** (0.009)
+3  -0.464*** (0.018) -0.476*** (0.020) -0.502*** (0.021) -0.489*** (0.019) -0.495*** (0.021)
+4   1.892*** (0.267)  2.870*** (0.285)  2.030*** (0.381)  4.099*** (0.407)  1.835*** (0.632)
+5                986               943               957              1021               885
+6           2554.836          2490.768          2488.457          2682.939          2364.949
+7           2579.304          2515.013          2512.776          2707.582          2388.877
+8          -1272.418         -1240.384         -1239.228         -1336.470         -1177.474
+9             39.624            39.459            12.790            78.041            54.941
+10               567             1 475               884               937             1 324
+11               111               373               248               236               351
+12            32 884            83 508            54 439            53 420            76 653
+13             7 359            24 268            14 528            11 003            21 709
+14               528             1 336               922               822             1 273
+15               133               505               213               182               477
+16            30 565            78 353            54 061            48 137            74 613
+17             7 735            22 094            14 298            12 393            20 724
+> 
+> 
+> Run_Script("Scripts/Models/16_Hypertension_Model_WillingnessToPayDeterminants.R")
+Running Scripts/Models/16_Hypertension_Model_WillingnessToPayDeterminants.R
+Analysis helpers loaded. PPP basis = AIC2023 | annuity factor = 8.639393 
+Fitting: Baseline 
+Fitting: With controls 
+Fitting: Health controls 
+> 
+> 
+> Run_Script("Scripts/Tables/17_Hypertension_Table_DeterminantEstimates.R")
+Running Scripts/Tables/17_Hypertension_Table_DeterminantEstimates.R
+Analysis helpers loaded. PPP basis = AIC2023 | annuity factor = 8.639393 
+                                       Variable          Baseline     With controls   Health controls
+1                                   (Intercept)  3.032*** (0.096)  0.891*** (0.207)  0.719*** (0.216)
+2                                  BASE_Numeric -0.005*** (0.001) -0.006*** (0.001) -0.008*** (0.001)
+3                                            RR  0.037*** (0.003)  0.037*** (0.003)  0.038*** (0.003)
+4                                           Bid -0.506*** (0.006) -0.519*** (0.007) -0.522*** (0.007)
+5                                   Diagnostics       Diagnostics       Diagnostics       Diagnostics
+6                                  Observations              9496              9496              9496
+7  Post-stratification weight x country dummies               Yes               Yes               Yes
+8                                           AIC         24973.786         24587.498         24443.509
+9                                           BIC         25074.007         24744.988         24658.268
+10                                       LogLik        -12472.893        -12271.749        -12191.754
+11                                      LR Stat           487.213           889.501          1049.490
+12                                      MeanWTP           $968.53           $997.88          $1020.71
+13                                    MedianWTP           $247.49           $252.76           $252.20
+14                                      MeanVSC         $56780.26         $58661.62         $59999.42
+15                                    MedianVSC         $15439.68         $15477.03         $15553.31
+16                                 Dummy_Female              <NA> -0.153*** (0.026) -0.141*** (0.026)
+17                                    LogIncome              <NA>  0.304*** (0.025)  0.292*** (0.025)
+18                            INC1_MissingDummy              <NA> -0.147*** (0.038) -0.129*** (0.039)
+19                 EducationCategory_Dummy_High              <NA>  0.152*** (0.028)  0.136*** (0.028)
+20                                    Certainty              <NA> -0.112*** (0.012) -0.122*** (0.012)
+21                                 MarriedDummy              <NA>  0.083*** (0.030)   0.066** (0.030)
+22                            HH_PersonsNumeric              <NA> -0.043*** (0.012) -0.037*** (0.012)
+23                           EmployDummy_Employ              <NA>    -0.020 (0.029)     0.003 (0.029)
+24                                Health_HadHBP              <NA>              <NA>    0.056* (0.032)
+25                         HBP_RelativeRiskHigh              <NA>              <NA>  0.134*** (0.034)
+26                                  HBP_Genetic              <NA>              <NA>  0.153*** (0.033)
+27                                HBP_Healthier              <NA>              <NA> -0.247*** (0.035)
+28                                   HBP_Family              <NA>              <NA>   0.061** (0.030)
+29                              Health_Relative              <NA>              <NA>  0.050*** (0.016)
+30                                 Health_Drink              <NA>              <NA>  0.045*** (0.015)
+31                             Health_Lifestyle              <NA>              <NA>  0.060*** (0.018)
+> 
+> 
+> Run_Script("Scripts/Tables/18_Hypertension_Table_KrinskyRobbIntervals.R")
+Running Scripts/Tables/18_Hypertension_Table_KrinskyRobbIntervals.R
+Analysis helpers loaded. PPP basis = AIC2023 | annuity factor = 8.639393 
+
+Using cached full-sample pooled model.
+
+Verifying the closed form against wtp_i()...
+  adjusted truncated mean: max relative error 6.14e-10
+  median                 : max relative error 7.46e-16
+Verifying against attach_welfare() + summarise_welfare()...
+  all ten countries agree to <1e-6 relative.
+
+vcov check: max |sqrt(diag(V)) - summary SE| = 0
+
+Running 10000 Krinsky-Robb draws...
+   1000 / 10000  (12 s elapsed)
+   2000 / 10000  (22 s elapsed)
+   3000 / 10000  (32 s elapsed)
+   4000 / 10000  (43 s elapsed)
+   5000 / 10000  (54 s elapsed)
+   6000 / 10000  (64 s elapsed)
+   7000 / 10000  (74 s elapsed)
+   8000 / 10000  (82 s elapsed)
+   9000 / 10000  (90 s elapsed)
+  10000 / 10000  (98 s elapsed)
+Done in 98 s. Invalid draws dropped: 0
+
+#### Krinsky-Robb confidence intervals, PPP basis AIC2023 ####
+        Country    n WTP_mean WTP_mean_lo WTP_mean_hi WTP_median WTP_median_lo WTP_median_hi VSC_mean VSC_mean_lo
+        Austria  932      878         769         998        211           180           245   51 360      44 891
+        Belgium  954      665         583         759        147           125           172   39 166      34 253
+         Canada  959    1 043         920       1 177        346           270           429   61 074      53 674
+        Finland  955      771         678         874        187           160           217   45 056      39 475
+         Greece  904    1 526       1 351       1 729        523           417           617   90 058      79 480
+          Japan  986      528         465         601        133           112           152   30 565      26 834
+       Portugal  943    1 336       1 182       1 511        505           365           574   78 353      69 117
+       Slovenia  957      922         810       1 045        213           181           250   54 061      47 399
+ United Kingdom 1021      822         727         930        182           156           213   48 137      42 450
+  United States  885    1 273       1 120       1 444        477           391           557   74 613      65 453
+            All 9496      969         925       1 019        247           235           271   56 780      54 120
+ VSC_mean_hi VSC_median VSC_median_lo VSC_median_hi
+      58 514     13 656        11 770        15 844
+      44 815      9 948         8 629        11 660
+      69 130     16 428        14 112        19 361
+      51 217     11 772        10 200        13 660
+     102 390     28 858        23 254        33 982
+      34 833      7 735         6 750         8 971
+      88 931     22 094        19 151        26 671
+      61 529     14 298        12 342        16 795
+      54 691     12 393        10 764        14 537
+      84 890     20 724        17 712        25 115
+      59 848     15 440        14 031        16 461
+
+Krinsky-Robb confidence intervals written. Draws cached to Hypertension_Model_KrinskyRobbDraws.rds
+> 
+> 
+> Run_Script("Scripts/Tables/19_Hypertension_Table1_CountryWillingnessToPayAndCaseValues.R")
+Running Scripts/Tables/19_Hypertension_Table1_CountryWillingnessToPayAndCaseValues.R
+Analysis helpers loaded. PPP basis = AIC2023 | annuity factor = 8.639393 
+
+           |------------------- WTP -------------------|------------------- VSC -------------------|
+        Country    N         Mean USD (CI) Mean local Median            Mean USD (CI)    Mean local  Median 
+        Austria  932       878 (769 – 998)    EUR 620    211  51,360 (44,891 – 58,514)    EUR 36,281  13,656
+        Belgium  954       665 (583 – 759)    EUR 477    147  39,166 (34,253 – 44,815)    EUR 28,083   9,948
+         Canada  959   1,043 (920 – 1,177)  CAD 1,220    346  61,074 (53,674 – 69,130)    CAD 71,448  16,428
+        Finland  955       771 (678 – 874)    EUR 603    187  45,056 (39,475 – 51,217)    EUR 35,251  11,772
+         Greece  904 1,526 (1,351 – 1,729)    EUR 765    523 90,058 (79,480 – 102,390)    EUR 45,162  28,858
+          Japan  986       528 (465 – 601) JPY 47,200    133  30,565 (26,834 – 34,833) JPY 2,730,574   7,735
+       Portugal  943 1,336 (1,182 – 1,511)    EUR 680    505  78,353 (69,117 – 88,931)    EUR 39,897  22,094
+       Slovenia  957     922 (810 – 1,045)    EUR 499    213  54,061 (47,399 – 61,529)    EUR 29,251  14,298
+ United Kingdom 1021       822 (727 – 930)    GBP 534    182  48,137 (42,450 – 54,691)    GBP 31,308  12,393
+  United States  885 1,273 (1,120 – 1,444)  USD 1,273    477  74,613 (65,453 – 84,890)    USD 74,613  20,724
+            All 9496     969 (925 – 1,019)       <NA>    247  56,780 (54,120 – 59,848)          <NA>  15,440
+
+Paper Table 1 written.
+                 Convention Annuity_Factor Pooled_Mean_VSC
+                 Continuous       8.639393        56780.26
+       Discrete end-of-year       8.530203        56062.64
+ Discrete beginning-of-year       8.786109        57744.52
+> 
+> 
+> Run_Script("Scripts/Tables/20_Hypertension_Table2_WillingnessToPayDeterminants.R")
+Running Scripts/Tables/20_Hypertension_Table2_WillingnessToPayDeterminants.R
+Analysis helpers loaded. PPP basis = AIC2023 | annuity factor = 8.639393 
+
+Closed-form vs wtp_i(), per-respondent: max relative error 7.17e-07 (0 of 9496 respondents > 1e-6)
+Closed-form vs wtp_i(), population mean: relative error 1.19e-08
+Population mean adjusted-truncated WTP (USD PPP), Health controls: $1020.71
+                       Variable     AME_USD     AME_Pct
+1                  Dummy_Female -218.898135 -19.3220892
+2                     LogIncome    4.504849   0.4413462
+3             INC1_MissingDummy -187.724504 -18.0558480
+4  EducationCategory_Dummy_High  210.224625  23.1050034
+5                     Certainty -175.445679 -17.1886488
+6                  MarriedDummy   99.643626  10.5050171
+7             HH_PersonsNumeric  -55.655434  -5.4526377
+8            EmployDummy_Employ    4.812043   0.4728788
+9                 Health_HadHBP   87.274346   8.8105523
+10         HBP_RelativeRiskHigh  215.892201  22.3198591
+11                  HBP_Genetic  246.013863  25.8889113
+12                HBP_Healthier -421.128078 -30.7799247
+13                   HBP_Family   92.697670   9.7246742
+14              Health_Relative   79.288295   7.7679808
+15                 Health_Drink   71.867855   7.0409902
+16             Health_Lifestyle   97.113574   9.5143473
+17                 BASE_Numeric  -11.609314  -1.1373800
+18                           RR   59.883318   5.8668491
+
+Income elasticity (Health controls, full sample): simulation (truncated mean) = 0.4413, analytical (median) = 0.5592
+KR elasticity draws: 1000, invalid: 0
+  simulation 95% CI [0.3653, 0.5091]; analytical 95% CI [0.4623, 0.6476]
+                                                                                         Variable          Baseline
+                                                                                        Intercept  3.032*** (0.096)
+                                                                                        Base risk -0.005*** (0.001)
+                                                                                   Risk reduction  0.037*** (0.003)
+                                                                                  Log (bid level) -0.506*** (0.006)
+                                                                                     Female (0/1)                  
+                                                                                     Log (income)                  
+                                                                             Missing income (0/1)                  
+                                                                             High education (0/1)                  
+                                                                       Response certainty (0 - 4)                  
+                                                                                    Married (0/1)                  
+                                                                           Household size (0 - 7)                  
+                                                                                   Employed (0/1)                  
+                               Has a doctor ever told you that you had high blood pressure? (0/1)                  
+ Risk of developing high blood pressure compared to people of your age and gender is larger (0/1)                  
+                                                                          Genetic condition (0/1)                  
+                    Just adopt a healthier lifestyle to reduce your risk instead of paying? (0/1)                  
+          People close to you (family, friends) who have, or have had, high blood pressure? (0/1)                  
+              Relative health compared to others of their age and gender in their country (1 - 5)                  
+                                                                    Frequency of alcoholic drinks                  
+                                            Do you consider yourself to have a healthy lifestyle?                  
+                                                                                      Diagnostics       Diagnostics
+                                                                                     Observations              9496
+                                                                                              AIC         24973.786
+                                                                                              BIC         25074.007
+                                                                                   Log-likelihood        -12472.893
+                                                                       Likelihood-ratio statistic           487.213
+                                                                           Mean WTP (USD2023 PPP)           $968.53
+                                                                         Median WTP (USD2023 PPP)           $247.49
+                                                                           Mean VSC (USD2023 PPP)         $56780.26
+                                                                         Median VSC (USD2023 PPP)         $15439.68
+                                                   Income elasticity (simulation, truncated mean)                  
+                                                           Income elasticity (analytical, median)                  
+     With controls      Health controls Marginal effect on WTP (%) Marginal effect on WTP (USD)
+  0.891*** (0.207)     0.719*** (0.216)                       <NA>                         <NA>
+ -0.006*** (0.001)    -0.008*** (0.001)                     -1.14%                       -11.61
+  0.037*** (0.003)     0.038*** (0.003)                     +5.87%                       +59.88
+ -0.519*** (0.007)    -0.522*** (0.007)                       <NA>                         <NA>
+ -0.153*** (0.026)    -0.141*** (0.026)                    -19.32%                      -218.90
+  0.304*** (0.025)     0.292*** (0.025)                     +0.44%                        +4.50
+ -0.147*** (0.038)    -0.129*** (0.039)                    -18.06%                      -187.72
+  0.152*** (0.028)     0.136*** (0.028)                    +23.11%                      +210.22
+ -0.112*** (0.012)    -0.122*** (0.012)                    -17.19%                      -175.45
+  0.083*** (0.030)      0.066** (0.030)                    +10.51%                       +99.64
+ -0.043*** (0.012)    -0.037*** (0.012)                     -5.45%                       -55.66
+    -0.020 (0.029)        0.003 (0.029)                     +0.47%                        +4.81
+                         0.056* (0.032)                     +8.81%                       +87.27
+                       0.134*** (0.034)                    +22.32%                      +215.89
+                       0.153*** (0.033)                    +25.89%                      +246.01
+                      -0.247*** (0.035)                    -30.78%                      -421.13
+                        0.061** (0.030)                     +9.72%                       +92.70
+                       0.050*** (0.016)                     +7.77%                       +79.29
+                       0.045*** (0.015)                     +7.04%                       +71.87
+                       0.060*** (0.018)                     +9.51%                       +97.11
+       Diagnostics          Diagnostics                       <NA>                         <NA>
+              9496                 9496                       <NA>                         <NA>
+         24587.498            24443.509                       <NA>                         <NA>
+         24744.988            24658.268                       <NA>                         <NA>
+        -12271.749           -12191.754                       <NA>                         <NA>
+           889.501             1049.490                       <NA>                         <NA>
+           $997.88             $1020.71                       <NA>                         <NA>
+           $252.76              $252.20                       <NA>                         <NA>
+         $58661.62            $59999.42                       <NA>                         <NA>
+         $15477.03            $15553.31                       <NA>                         <NA>
+                   0.441 [0.365, 0.509]                                                        
+                   0.559 [0.462, 0.648]                                                        
+
+Paper Table 2 (determinants of WTP, with marginal effects) written.
+> 
+> 
+> Run_Script("Scripts/Figures/21_Hypertension_Figure3_CountryWillingnessToPayDistributions.R")
+Running Scripts/Figures/21_Hypertension_Figure3_CountryWillingnessToPayDistributions.R
+Analysis helpers loaded. PPP basis = AIC2023 | annuity factor = 8.639393 
+
+#### Per-country individual WTP summary (Specification 2, With controls) ####
+        Country    N   Mean Median    SD   IQR
+        Austria  932  880.9  798.2 448.2 586.9
+        Belgium  954  687.6  611.2 365.3 456.0
+         Canada  959 1068.5  960.7 550.2 743.4
+        Finland  955  797.2  707.3 415.8 550.6
+         Greece  904 1589.9 1490.2 695.4 954.7
+          Japan  986  548.4  486.1 309.1 410.7
+       Portugal  943 1401.1 1289.5 652.6 850.9
+       Slovenia  957  928.7  853.6 456.3 628.8
+ United Kingdom 1021  831.9  753.3 430.9 584.6
+  United States  885 1328.1 1221.1 695.4 947.8
+
+Manuscript Figure 3 (WTP density by country + Pooled) written to Output/Figures/Hypertension_Figure3_CountryWillingnessToPayDistributions.png
+Warning message:
+package 'ggdist' was built under R version 4.5.3 
+> 
+> 
+> # *************************************************************
+> #### Section 6: Produce the remaining tables, figures and supplementary checks ####
+> # *************************************************************
+> 
+> 
+> Run_Script("Scripts/Tables/22_Hypertension_TableA1_VariableCoding.R")
+Running Scripts/Tables/22_Hypertension_TableA1_VariableCoding.R
+Analysis helpers loaded. PPP basis = AIC2023 | annuity factor = 8.639393 
+
+#### Appendix Table A1: variable coding ####
+                                   Variable
+ -- Survey design and sample (N = 9,496) --
+                                    Austria
+                                    Belgium
+                                     Canada
+                                    Finland
+                                     Greece
+                                      Japan
+                                   Portugal
+                                   Slovenia
+                             United Kingdom
+                              United States
+                 Post-stratification weight
+                     Survey completion time
+                     Valuation section time
+         -- Individual-level (N = 9,496) --
+                               BASE_Numeric
+                                         RR
+                                    LogBid1
+                                    LogBid2
+                               Dummy_Female
+                                  LogIncome
+                          INC1_MissingDummy
+               EducationCategory_Dummy_High
+                                  Certainty
+                               MarriedDummy
+                          HH_PersonsNumeric
+                         EmployDummy_Employ
+                              Health_HadHBP
+                       HBP_RelativeRiskHigh
+                                HBP_Genetic
+                              HBP_Healthier
+                                 HBP_Family
+                            Health_Relative
+                               Health_Drink
+                           Health_Lifestyle
+                                   resp_age
+     -- Debriefing questions (N = 9,496) --
+       Thought risk reduction was permanent
+              Yea-sayer, would pay anything
+         Did not reflect a real-life choice
+               Did not feel informed enough
+               -- Country-level (N = 10) --
+                         Log GDP per capita
+                          Log sample income
+               OOP health expenditure share
+                    Hypertension prevalence
+                         Mean age of sample
+                                                                                                                                                                                                                                                                                                 Definition
+                                                                                                                                                                                                                                                                                                           
+                                                                                                                                                               From 1,222 completed interviews, 932 respondents remained in the analysis sample after screening for speeding and failed risk comprehension.
+                                                                                                                                                               From 1,214 completed interviews, 954 respondents remained in the analysis sample after screening for speeding and failed risk comprehension.
+                                                                                                                                                               From 1,224 completed interviews, 959 respondents remained in the analysis sample after screening for speeding and failed risk comprehension.
+                                                                                                                                                               From 1,218 completed interviews, 955 respondents remained in the analysis sample after screening for speeding and failed risk comprehension.
+                                                                                                                                                               From 1,205 completed interviews, 904 respondents remained in the analysis sample after screening for speeding and failed risk comprehension.
+                                                                                                                                                               From 1,219 completed interviews, 986 respondents remained in the analysis sample after screening for speeding and failed risk comprehension.
+                                                                                                                                                               From 1,218 completed interviews, 943 respondents remained in the analysis sample after screening for speeding and failed risk comprehension.
+                                                                                                                                                               From 1,221 completed interviews, 957 respondents remained in the analysis sample after screening for speeding and failed risk comprehension.
+                                                                                                                                                             From 1,230 completed interviews, 1,021 respondents remained in the analysis sample after screening for speeding and failed risk comprehension.
+                                                                                                                                                               From 1,211 completed interviews, 885 respondents remained in the analysis sample after screening for speeding and failed risk comprehension.
+ Ipsos post-stratification weight aligning each country sample to national population totals for gender x age, education, and geographic region by iterative proportional fitting (raking), computed country by country and efficiency-trimmed; entered in the model interacted with the country indicator.
+                                                                                                                                                                                                                                                          Total elapsed time to complete the questionnaire.
+                                                                                                                                                                                                                                 Elapsed time on the valuation (double-bounded dichotomous choice) section.
+                                                                                                                                                                                                                                                                                                           
+                                                                                                                                                                                                                  Base risk of developing high blood pressure over 10 years, as presented to the respondent
+                                                                                                                                                                                                                                                                 Risk reduction offered (BASE% to BASE%-RR)
+                                                                                                                                                                                                                          First (opening) bid level shown in the double-bounded dichotomous-choice sequence
+                                                                                                                                                                                                                                        Second (follow-up) bid level, contingent on the response to LogBid1
+                                                                                                                                                                                                                                                                                       Are you...? (gender)
+                                                                                                                                                                                                                        Monthly household income, with refused or unknown responses imputed before analysis
+                                                                                                                                                                                                                                                        Refused or did not know their first income question
+                                                                                                                                                                                                                                                                        Highest level of education attained
+                                                                                                                                                                                                                                               How certain are you of the maximum value you just indicated?
+                                                                                                                                                                                                                                                                               What is your marital status?
+                                                                                                                                                                                                                                                                   Number of people living in the household
+                                                                                                                                                                                                                                                                                  Current employment status
+                                                                                                                                                                                                                                               Has a doctor ever told you that you had high blood pressure?
+                                                                                                                                                                                                                 Risk of developing high blood pressure compared to people of your age and gender is larger
+                                                                                                                                                                                                                                                 Is high blood pressure a genetic condition in your family?
+                                                                                                                                                                        When choosing between the current and reduced risk, were you thinking you could just adopt a healthier lifestyle instead of paying?
+                                                                                                                                                                                                           Do you know of people close to you (family, friends) who have, or have had, high blood pressure?
+                                                                                                                                                                                                                           Self-reported health relative to others of their age and gender in their country
+                                                                                                                                                                                                                                            How many alcoholic drinks do you usually have in a normal week?
+                                                                                                                                                                                 Do you consider yourself to have a healthy lifestyle (exercise regularly, eat healthily, sleep more than 7 hours a night)?
+                                                                                                                                                                                                                                                                                             Respondent age
+                                                                                                                                                                                                                                                                                                           
+                                                                                                                           Did you understand that your risk of developing high blood pressure would return to its current level after 10 years even if you chose to pay to reduce your risk over 10 years?
+                                                                                                                                                                                    Please consider the statement: 'I would pay almost anything to improve my health even by a small amount'. Do you agree?
+                                                                                                                                                                                                                                           My survey responses reflect what I would have done in real life.
+                                                                                                                                                                                                                                   The survey provided me with enough information to make informed choices.
+                                                                                                                                                                                                                                                                                                           
+                                                                                                                                                                                                                                                                          Gross domestic product per capita
+                                                                                                                                                                                                                                                   Weighted geometric mean of respondents' household income
+                                                                                                                                                                                                                                                          Out-of-pocket share of current health expenditure
+                                                                                                                                                                                                                                         Age-standardised hypertension prevalence, adults 30-79, both sexes
+                                                                                                                                                                                                                                                                                        Mean respondent age
+                                                            Source
+                                                                  
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                             Ipsos
+                                    SWACHE survey (Ipsos paradata)
+                                    SWACHE survey (Ipsos paradata)
+                                                                  
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                                  
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                     SWACHE survey
+                                                                  
+                                      OECD National Accounts, 2023
+                       SWACHE survey (aggregated to country level)
+        OECD Health Expenditure and Financing, SHA framework, 2022
+ WHO, Global report on hypertension 2025, Annex 1 country profiles
+                       SWACHE survey (aggregated to country level)
+                                                                              Coding       Min      Mean        SD
+                                                                                            NA        NA        NA
+                                                  Binary: 1 = Austria, 0 = otherwise     0.000     0.098     0.298
+                                                  Binary: 1 = Belgium, 0 = otherwise     0.000     0.100     0.301
+                                                   Binary: 1 = Canada, 0 = otherwise     0.000     0.101     0.301
+                                                  Binary: 1 = Finland, 0 = otherwise     0.000     0.101     0.301
+                                                   Binary: 1 = Greece, 0 = otherwise     0.000     0.095     0.294
+                                                    Binary: 1 = Japan, 0 = otherwise     0.000     0.104     0.305
+                                                 Binary: 1 = Portugal, 0 = otherwise     0.000     0.099     0.299
+                                                 Binary: 1 = Slovenia, 0 = otherwise     0.000     0.101     0.301
+                                           Binary: 1 = United Kingdom, 0 = otherwise     0.000     0.108     0.310
+                                            Binary: 1 = United States, 0 = otherwise     0.000     0.093     0.291
+                                                          Continuous (raking weight)     0.563     0.997     0.183
+                                                                             Minutes     5.750    18.247    18.048
+                                                                             Minutes     0.600     2.071     4.990
+                                                                                            NA        NA        NA
+                  Assigned scenario probability: 30% or 55%, determined by age group    30.000    44.998    12.248
+                             Randomly assigned reduction: 10 or 20 percentage points    10.000    14.974     5.000
+                                             Continuous: log of PPP-adjusted USD bid     2.996     5.280     1.346
+                                             Continuous: log of PPP-adjusted USD bid     1.954     5.299     1.463
+                                                   Binary: 1 = female, 0 = otherwise     0.000     0.514     0.500
+                            Continuous: log of PPP-adjusted monthly household income     5.822     8.152     0.627
+                                           Binary: 1 = missing/refused, 0 = answered     0.000     0.117     0.322
+                                          Binary: 1 = high (tertiary), 0 = otherwise     0.000     0.488     0.500
+                             Ordinal: 0 (strongly uncertain) to 4 (strongly certain)     0.000     2.501     1.072
+                                                  Binary: 1 = married, 0 = otherwise     0.000     0.682     0.466
+                                                                       Count: 1 to 7     1.000     2.541     1.238
+                  Binary: 1 = employed (incl. self-employed/military), 0 = otherwise     0.000     0.593     0.491
+                                                             Binary: 1 = yes, 0 = no     0.000     0.336     0.472
+                                                   Binary: 1 = larger, 0 = otherwise     0.000     0.253     0.435
+                                                             Binary: 1 = yes, 0 = no     0.000     0.272     0.445
+                                                             Binary: 1 = yes, 0 = no     0.000     0.817     0.387
+                                                             Binary: 1 = yes, 0 = no     0.000     0.698     0.459
+         Ordinal: 1 (well below average) to 5 (well above average); 0 = not answered     0.000     3.302     0.901
+ Ordinal: 1 = non-drinker, 2 = 1-4/week, 3 = 5-9/week, 4 = >9/week; 0 = not answered     0.000     1.731     0.891
+                                Ordinal: 0 (strongly disagree) to 4 (strongly agree)     0.000     2.732     0.787
+                                                                   Continuous: years    18.000    49.044    16.245
+                                                                                            NA        NA        NA
+                                             Binary: 1 = did not answer yes, 0 = yes     0.000     0.115     0.319
+                                                    Binary: 1 = agree, 0 = otherwise     0.000     0.364     0.481
+                            Binary: 1 = strongly or somewhat disagree, 0 = otherwise     0.000     0.025     0.157
+                            Binary: 1 = strongly or somewhat disagree, 0 = otherwise     0.000     0.045     0.208
+                                                                                            NA        NA        NA
+                                             USD, PPP-adjusted (log taken in models) 40625.448 59784.031 12401.332
+                                             USD, PPP-adjusted (log taken in models)  2374.012  3534.525   791.834
+                                                               Proportion, 0-1 scale     0.110     0.181     0.076
+                                                               Proportion, 0-1 scale     0.270     0.385     0.070
+                                                                               Years    46.973    49.035     1.743
+       Max
+        NA
+     1.000
+     1.000
+     1.000
+     1.000
+     1.000
+     1.000
+     1.000
+     1.000
+     1.000
+     1.000
+     3.281
+   433.583
+   211.583
+        NA
+    55.000
+    20.000
+     7.499
+     8.627
+     1.000
+     9.503
+     1.000
+     1.000
+     4.000
+     1.000
+     7.000
+     1.000
+     1.000
+     1.000
+     1.000
+     1.000
+     1.000
+     5.000
+     4.000
+     4.000
+    97.000
+        NA
+     1.000
+     1.000
+     1.000
+     1.000
+        NA
+ 82222.895
+  4871.367
+     0.335
+     0.530
+    53.003
+
+Appendix Table A1 (variable coding) written.
+> 
+> 
+> Run_Script("Scripts/Tables/23_Hypertension_TableA2_BidAmounts.R")
+Running Scripts/Tables/23_Hypertension_TableA2_BidAmounts.R
+> 
+> 
+> Run_Script("Scripts/Figures/24_Hypertension_FigureA2_BidAcceptance.R")
+Running Scripts/Figures/24_Hypertension_FigureA2_BidAcceptance.R
+Analysis helpers loaded. PPP basis = AIC2023 | annuity factor = 8.639393 
+
+#### Turnbull survival curve step points, by country (S(t) = P(WTP > t)) ####
+
+Austria:
+ Bid (USD2023 PPP) S(t) = P(WTP > t)
+             $4.25             89.8%
+            $15.57             82.8%
+            $45.30             69.6%
+            $67.95             69.6%
+           $140.15             52.5%
+           $212.34             52.5%
+           $410.53             28.7%
+           $608.71             28.7%
+          $1224.50             14.8%
+          $1840.30             14.8%
+          $3751.37              4.9%
+          $5662.45              4.9%
+
+Belgium:
+ Bid (USD2023 PPP) S(t) = P(WTP > t)
+             $4.18             90.2%
+            $15.34             80.4%
+            $43.93             66.8%
+            $65.55             66.8%
+           $130.40             50.6%
+           $195.26             50.6%
+           $397.49             21.1%
+           $599.72             21.1%
+          $1206.41             12.8%
+          $1813.10             12.8%
+          $3626.19              5.0%
+          $5439.29              5.0%
+
+Canada:
+ Bid (USD2023 PPP) S(t) = P(WTP > t)
+             $3.85             91.1%
+            $14.96             85.6%
+            $44.02             72.6%
+            $65.82             72.6%
+           $131.21             56.3%
+           $196.61             56.3%
+           $393.21             36.8%
+           $589.82             36.8%
+          $1149.72             18.8%
+          $1709.62             18.8%
+          $3547.46              6.4%
+          $5385.30              6.4%
+
+Finland:
+ Bid (USD2023 PPP) S(t) = P(WTP > t)
+             $3.83             92.1%
+            $15.34             83.0%
+            $45.37             68.8%
+            $67.74             68.8%
+           $136.12             47.6%
+           $204.50             47.6%
+           $409.00             27.8%
+           $613.51             27.8%
+          $1201.45             12.3%
+          $1789.39             12.3%
+          $3642.69              6.0%
+          $5495.99              6.0%
+
+Greece:
+ Bid (USD2023 PPP) S(t) = P(WTP > t)
+             $3.99             94.0%
+            $15.95             89.1%
+            $46.86             80.2%
+            $69.79             80.2%
+           $134.60             66.6%
+           $199.41             66.6%
+           $408.79             46.2%
+           $618.17             46.2%
+          $1226.37             26.1%
+          $1834.58             26.1%
+          $3709.04             12.3%
+          $5583.50             12.3%
+
+Japan:
+ Bid (USD2023 PPP) S(t) = P(WTP > t)
+             $3.92             83.8%
+            $15.11             74.5%
+            $44.77             57.4%
+            $67.16             57.4%
+           $134.32             37.8%
+           $201.48             37.8%
+           $414.16             20.3%
+           $626.84             20.3%
+          $1242.48              9.9%
+          $1858.12              9.9%
+          $3772.21              4.7%
+          $5686.30              4.7%
+
+Portugal:
+ Bid (USD2023 PPP) S(t) = P(WTP > t)
+             $3.93             89.9%
+            $15.71             84.2%
+            $47.13             74.1%
+            $70.70             74.1%
+           $143.36             58.9%
+           $216.03             58.9%
+           $432.06             40.3%
+           $648.08             40.3%
+          $1266.71             22.7%
+          $1885.33             22.7%
+          $3790.30             15.8%
+          $5695.28             15.8%
+
+Slovenia:
+ Bid (USD2023 PPP) S(t) = P(WTP > t)
+             $3.70             90.0%
+            $14.79             80.5%
+            $44.36             70.1%
+            $66.54             70.1%
+           $134.92             51.6%
+           $203.30             51.6%
+           $406.60             33.5%
+           $609.91             33.5%
+          $1201.33             15.1%
+          $1792.75             15.1%
+          $3668.68              5.9%
+          $5544.60              5.9%
+
+United Kingdom:
+ Bid (USD2023 PPP) S(t) = P(WTP > t)
+             $3.84             89.7%
+            $15.38             80.7%
+            $46.13             66.6%
+            $69.19             66.6%
+           $134.53             47.9%
+           $199.88             47.9%
+           $407.45             30.9%
+           $615.01             30.9%
+          $1230.03             15.9%
+          $1845.04             15.9%
+          $3766.96             11.1%
+          $5688.88             11.1%
+
+United States:
+ Bid (USD2023 PPP) S(t) = P(WTP > t)
+             $4.00             91.8%
+            $14.00             85.5%
+            $40.00             75.3%
+            $60.00             75.3%
+           $120.00             59.3%
+           $180.00             59.3%
+           $360.00             42.4%
+           $540.00             42.4%
+          $1070.00             26.6%
+          $1600.00             26.6%
+          $3250.00             13.3%
+          $4900.00             13.3%
+
+#### Pooled Turnbull survival curve step points ####
+ Bid (USD2023 PPP) S(t) = P(WTP > t)
+             $3.70             91.7%
+             $7.53             91.3%
+             $7.68             90.1%
+             $7.69             90.0%
+             $7.76             89.9%
+             $7.85             89.9%
+             $7.92             89.9%
+             $7.99             89.9%
+             $8.18             89.9%
+             $8.43             89.8%
+            $14.25             84.7%
+            $21.09             82.9%
+            $22.20             82.9%
+            $22.27             82.4%
+            $22.35             82.4%
+            $22.52             82.3%
+            $22.83             82.3%
+            $23.03             82.0%
+            $23.31             81.9%
+            $23.75             81.8%
+            $41.96             74.8%
+            $60.00             74.8%
+            $62.78             70.8%
+            $65.55             70.8%
+            $65.69             70.7%
+            $65.82             70.7%
+            $66.18             70.5%
+            $66.54             70.5%
+            $66.85             69.0%
+            $67.16             69.0%
+            $67.45             69.0%
+            $67.74             69.0%
+            $67.85             69.0%
+            $67.95             69.0%
+            $68.57             69.0%
+            $69.19             69.0%
+            $69.49             69.0%
+            $69.79             69.0%
+            $70.25             68.8%
+            $70.70             68.8%
+           $125.35             59.1%
+           $180.00             59.1%
+           $187.63             55.9%
+           $195.26             55.9%
+           $195.93             55.6%
+           $196.61             55.6%
+           $198.01             55.0%
+           $199.41             55.0%
+           $199.64             50.2%
+           $199.88             50.2%
+           $200.68             50.2%
+           $201.48             50.2%
+           $202.39             50.2%
+           $203.30             50.2%
+           $203.90             50.2%
+           $204.50             50.2%
+           $208.42             50.2%
+           $212.34             50.2%
+           $214.18             50.2%
+           $216.03             50.2%
+           $378.01             42.4%
+           $540.00             42.4%
+           $564.91             36.7%
+           $589.82             36.7%
+           $594.77             30.9%
+           $599.72             30.9%
+           $604.21             30.9%
+           $608.71             30.9%
+           $609.31             30.9%
+           $609.91             30.9%
+           $611.71             30.9%
+           $613.51             30.9%
+           $614.26             30.9%
+           $615.01             30.9%
+           $616.59             30.9%
+           $618.17             30.9%
+           $622.50             30.9%
+           $626.84             30.9%
+           $637.46             30.9%
+           $648.08             30.9%
+          $1124.04             26.7%
+          $1600.00             26.7%
+          $1654.81             19.3%
+          $1709.62             19.3%
+          $1749.51             16.3%
+          $1789.39             16.3%
+          $1791.07             16.3%
+          $1792.75             16.3%
+          $1802.92             16.3%
+          $1813.10             16.3%
+          $1823.84             16.3%
+          $1834.58             16.3%
+          $1837.44             16.3%
+          $1840.30             16.3%
+          $1842.67             15.4%
+          $1845.04             15.4%
+          $1851.58             15.4%
+          $1858.12             15.4%
+          $1871.73             15.4%
+          $1885.33             15.4%
+          $3392.67             13.3%
+          $4900.00             13.3%
+          $5142.65              8.1%
+          $5385.30              8.1%
+          $5412.29              8.1%
+          $5439.29              8.1%
+          $5467.64              8.1%
+          $5495.99              8.1%
+          $5520.30              8.1%
+          $5544.60              8.1%
+          $5564.05              8.1%
+          $5583.50              8.1%
+          $5622.97              8.1%
+          $5662.45              8.1%
+          $5674.38              8.1%
+          $5686.30              8.1%
+          $5687.59              8.1%
+          $5688.88              8.1%
+          $5692.08              8.1%
+          $5695.28              8.1%
+
+#### Turnbull median WTP (first bid where S(t) <= 50%), by country ####
+        Country MedianWTP
+        Austria   $410.53
+        Belgium   $397.49
+         Canada   $393.21
+        Finland   $136.12
+         Greece   $408.79
+          Japan   $134.32
+       Portugal   $432.06
+       Slovenia   $406.60
+ United Kingdom   $134.53
+  United States   $360.00
+
+Bid-acceptance survival curve (by country) written to Output/Figures/Hypertension_FigureA2_BidAcceptance.png (+ .pdf)
+> 
+> 
+> Run_Script("Scripts/Tables/25_Hypertension_Table3_CrossCountryRegressions.R")
+Running Scripts/Tables/25_Hypertension_Table3_CrossCountryRegressions.R
+Analysis helpers loaded. PPP basis = AIC2023 | annuity factor = 8.639393 
+
+Using cached full-sample pooled (Specification 1, baseline) model.
+
+#### Country-level data (VSC, GDP, sample income, OOP share, prevalence, age) ####
+        Country VSC_mean Income_geo Age_Mean GDP_pc OOP_share Prevalence
+        Austria    51360       4028    48.25  70487    0.1626       0.38
+        Belgium    39166       4034    48.84  69103    0.2125       0.35
+         Canada    61074       4168    50.43  64463    0.1499       0.27
+        Finland    45056       3078    48.17  61685    0.1610       0.43
+         Greece    90058       2374    47.10  40625    0.3354       0.39
+          Japan    30565       2462    53.00  49963    0.1104       0.41
+       Portugal    78353       3073    49.36  47427    0.2913       0.41
+       Slovenia    54061       3513    48.86  53950    0.1243       0.53
+ United Kingdom    48137       3744    46.97  57915    0.1478       0.31
+  United States    74613       4871    49.37  82223    0.1128       0.37
+
+#### Spec (1): log(VSC_mean) ~ log(GDP_pc) ####
+
+Call:
+FUN(formula = X[[i]], data = ..1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.62842 -0.16305 -0.01818  0.25836  0.41931 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)  
+(Intercept)  14.3279     6.0079   2.385   0.0442 *
+log(GDP_pc)  -0.3117     0.5471  -0.570   0.5846  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.3456 on 8 degrees of freedom
+Multiple R-squared:  0.03898,	Adjusted R-squared:  -0.08115 
+F-statistic: 0.3245 on 1 and 8 DF,  p-value: 0.5846
+
+
+#### Spec (2): log(VSC_mean) ~ log(Income_geo) ####
+
+Call:
+FUN(formula = X[[i]], data = ..1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.54702 -0.16788 -0.04203  0.23519  0.53700 
+
+Coefficients:
+                Estimate Std. Error t value Pr(>|t|)  
+(Intercept)     10.14386    4.09571   2.477   0.0383 *
+log(Income_geo)  0.09358    0.50257   0.186   0.8569  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.3518 on 8 degrees of freedom
+Multiple R-squared:  0.004315,	Adjusted R-squared:  -0.1201 
+F-statistic: 0.03467 on 1 and 8 DF,  p-value: 0.8569
+
+
+#### Spec (3): log(VSC_mean) ~ log(GDP_pc) + OOP_share ####
+
+Call:
+FUN(formula = X[[i]], data = ..1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.49739 -0.12952  0.04026  0.16939  0.39602 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)  
+(Intercept)   5.9576     6.7405   0.884   0.4061  
+log(GDP_pc)   0.3982     0.5969   0.667   0.5261  
+OOP_share     3.1887     1.6434   1.940   0.0935 .
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.298 on 7 degrees of freedom
+Multiple R-squared:  0.3751,	Adjusted R-squared:  0.1965 
+F-statistic: 2.101 on 2 and 7 DF,  p-value: 0.1929
+
+
+#### Spec (4): log(VSC_mean) ~ OOP_share + Prevalence ####
+
+Call:
+FUN(formula = X[[i]], data = ..1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.41515 -0.11391  0.03697  0.14338  0.48281 
+
+Coefficients:
+            Estimate Std. Error t value    Pr(>|t|)    
+(Intercept)  10.5038     0.6233  16.852 0.000000634 ***
+OOP_share     2.5135     1.3388   1.877       0.103    
+Prevalence   -0.1350     1.4539  -0.093       0.929    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.3071 on 7 degrees of freedom
+Multiple R-squared:  0.3362,	Adjusted R-squared:  0.1465 
+F-statistic: 1.772 on 2 and 7 DF,  p-value: 0.2383
+
+
+#### Spec (5): log(VSC_mean) ~ log(GDP_pc) + Prevalence + Age_Mean ####
+
+Call:
+FUN(formula = X[[i]], data = ..1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.33867 -0.27119 -0.02384  0.21246  0.45264 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)  
+(Intercept) 19.04374    7.39116   2.577    0.042 *
+log(GDP_pc) -0.34690    0.59013  -0.588    0.578  
+Prevalence  -0.47567    1.76465  -0.270    0.797  
+Age_Mean    -0.08455    0.06757  -1.251    0.257  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.3531 on 6 degrees of freedom
+Multiple R-squared:  0.2479,	Adjusted R-squared:  -0.1281 
+F-statistic: 0.6594 on 3 and 6 DF,  p-value: 0.6063
+
+
+#### Spec (6): log(VSC_mean) ~ log(GDP_pc) + OOP_share + Age_Mean ####
+
+Call:
+FUN(formula = X[[i]], data = ..1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.46680 -0.16805  0.01572  0.15307  0.41076 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)  9.26314    9.32737   0.993    0.359
+log(GDP_pc)  0.27799    0.66655   0.417    0.691
+OOP_share    2.61681    2.02339   1.293    0.243
+Age_Mean    -0.03838    0.07016  -0.547    0.604
+
+Residual standard error: 0.3141 on 6 degrees of freedom
+Multiple R-squared:  0.4048,	Adjusted R-squared:  0.1072 
+F-statistic:  1.36 on 3 and 6 DF,  p-value: 0.3415
+
+
+FLAG: spec (1)'s most-influential observation is Greece (Cook's D = 0.867), NOT Japan (Cook's D = 0.388).
+
+FLAG: spec (2)'s most-influential observation is Greece (Cook's D = 1.191), NOT Japan (Cook's D = 0.903).
+
+FLAG: spec (4)'s most-influential observation is Slovenia (Cook's D = 0.363), NOT Japan (Cook's D = 0.184).
+
+#### Cook's distance, most influential observation per spec ####
+ Spec MostInfluential CooksD_MostInfluential CooksD_Japan
+  (1)          Greece              0.8665901    0.3876989
+  (2)          Greece              1.1908980    0.9033718
+  (3)           Japan              0.6555243    0.6555243
+  (4)        Slovenia              0.3631017    0.1836242
+  (5)           Japan              1.9484381    1.9484381
+  (6)           Japan              1.9216105    1.9216105
+
+#### Paper Table 3: expanded cross-country specifications (no preferred spec) ####
+                            Variable              (1)              (2)            (3)               (4)
+                           Intercept 14.328** (6.008) 10.144** (4.096)  5.958 (6.740) 10.504*** (0.623)
+           Log GDP per capita (OECD)   -0.312 (0.547)                   0.398 (0.597)                  
+  Log sample income (geometric mean)                     0.094 (0.503)                                 
+ OOP health expenditure share (OECD)                                   3.189* (1.643)     2.513 (1.339)
+  Hypertension prevalence (WHO 2025)                                                     -0.135 (1.454)
+                  Mean age of sample                                                                   
+                        Observations               10               10             10                10
+                         Residual df                8                8              7                 7
+                           R-squared            0.039            0.004          0.375             0.336
+                      Adj. R-squared           -0.081           -0.120          0.197             0.146
+                    Cook's D (Japan)            0.388            0.903          0.656             0.184
+         Cook's D (most influential)   0.867 (Greece)   1.191 (Greece)  0.656 (Japan)  0.363 (Slovenia)
+              (5)            (6)
+ 19.044** (7.391)  9.263 (9.327)
+   -0.347 (0.590)  0.278 (0.667)
+                                
+                   2.617 (2.023)
+   -0.476 (1.765)               
+   -0.085 (0.068) -0.038 (0.070)
+               10             10
+                6              6
+            0.248          0.405
+           -0.128          0.107
+            1.948          1.922
+    1.948 (Japan)  1.922 (Japan)
+Stars: *** p<0.01, ** p<0.05, * p<0.1. Dependent variable in all six specs: log(VSC_mean), n=10, from Specification 1 (baseline pooled model). This table intentionally names no preferred specification -- see text for discussion of which variables are robust vs fragile across columns.
+
+Paper Table 3 (expanded cross-country specifications) written.
+> 
+> 
+> Run_Script("Scripts/Tables/26_Hypertension_TableA3_AlternativeDistributions.R")
+Running Scripts/Tables/26_Hypertension_TableA3_AlternativeDistributions.R
+Analysis helpers loaded. PPP basis = AIC2023 | annuity factor = 8.639393 
+Fitting: Weibull 
+Fitting: Log-logistic 
+Fitting: Log-normal 
+Fitting: SBDC 
+                                       Variable           Weibull      Log-logistic        Log-normal              SBDC
+1                                   (Intercept)  3.032*** (0.096)  3.899*** (0.146)  2.338*** (0.087)  2.457*** (0.124)
+2                                  BASE_Numeric -0.005*** (0.001) -0.008*** (0.002) -0.005*** (0.001) -0.005*** (0.001)
+3                                            RR  0.037*** (0.003)  0.055*** (0.004)  0.034*** (0.002)  0.026*** (0.003)
+4                                           Bid -0.506*** (0.006) -0.753*** (0.010) -0.451*** (0.006) -0.381*** (0.013)
+5                                   Diagnostics       Diagnostics       Diagnostics       Diagnostics       Diagnostics
+6                                  Observations              9496              9496              9496              9496
+7  Post-stratification weight x country dummies               Yes               Yes               Yes               Yes
+8                                           AIC         24973.786         24877.969         24893.197         12038.166
+9                                           BIC         25074.007         24978.190         24993.418         12138.387
+10                                       LogLik        -12472.893        -12424.985        -12432.598         -6005.083
+11                                      LR Stat           487.213           478.357           479.977          1151.588
+12                                      MeanWTP           $968.53          $1148.06          $1119.30           $884.10
+13                                    MedianWTP           $247.49           $220.33           $216.55           $239.72
+14                                      MeanVSC         $56780.26         $69056.88         $66840.33         $53878.93
+15                                    MedianVSC         $15439.68         $13525.25         $13566.20         $13194.56
+
+Table A3 written.
+> 
+> 
+> Run_Script("Scripts/Tables/27_Hypertension_TableA4_ScreeningRobustness.R")
+Running Scripts/Tables/27_Hypertension_TableA4_ScreeningRobustness.R
+Analysis helpers loaded. PPP basis = AIC2023 | annuity factor = 8.639393 
+Fitting: Baseline               n = 9496
+Fitting: Believed 10yr risk     n = 8403
+Fitting: Yea-sayers removed     n = 6040
+Fitting: Consequential (A1_1)   n = 9257
+Fitting: Consequential (A1_2)   n = 9066
+       Variable          Baseline Believed 10yr risk Yea-sayers removed Consequential (A1_1) Consequential (A1_2)
+1   (Intercept)  3.032*** (0.096)   3.057*** (0.102)   2.745*** (0.118)     3.017*** (0.097)     3.053*** (0.098)
+2  BASE_Numeric -0.005*** (0.001)  -0.005*** (0.001)     -0.000 (0.001)    -0.005*** (0.001)    -0.005*** (0.001)
+3            RR  0.037*** (0.003)   0.038*** (0.003)   0.040*** (0.003)     0.038*** (0.003)     0.037*** (0.003)
+4           Bid -0.506*** (0.006)  -0.519*** (0.007)  -0.530*** (0.008)    -0.508*** (0.007)    -0.510*** (0.007)
+5   Diagnostics       Diagnostics        Diagnostics        Diagnostics          Diagnostics          Diagnostics
+6      Included              9496               8403               6040                 9257                 9066
+7      Excluded          0 (0.0%)       1093 (11.5%)       3456 (36.4%)           239 (2.5%)           430 (4.5%)
+71          AIC         24973.786          22084.133          15647.659            24354.313            23847.101
+8           BIC         25074.007          22182.642          15741.545            24454.177            23946.673
+9        LogLik        -12472.893         -11028.067          -7809.829           -12163.156           -11909.550
+10      LR Stat           487.213            435.133            521.230              470.425              467.291
+11      MeanWTP           $968.53            $943.75            $662.11              $963.56              $978.92
+12    MedianWTP           $247.49            $251.92            $152.82              $246.00              $255.42
+13      MeanVSC         $56780.26          $55201.04          $38148.66            $56354.20            $57376.66
+14    MedianVSC         $15439.68          $14916.72           $8760.86            $15303.48            $15851.30
+
+Table A4 written.
+> 
+> 
+> Run_Script("Scripts/Tables/28_Hypertension_TableA6_PairwiseCountryComparisons.R")
+Running Scripts/Tables/28_Hypertension_TableA6_PairwiseCountryComparisons.R
+Analysis helpers loaded. PPP basis = AIC2023 | annuity factor = 8.639393 
+
+Reusing cached Krinsky-Robb draws: R = 10000, PPP basis = AIC2023, 0 invalid draws already dropped.
+Draws usable for every one of the ten countries simultaneously: 10000 of 10000.
+
+Of the 45 country pairs, 35 (77.8%) showed statistically significant differences in mean WTP at the 5% level (30, 66.7%, at the 1% level; 36, 80.0%, at the 10% level).
+
+#### Appendix Table A6: pairwise country WTP comparisons (Poe-Giraud-Loomis) ####
+ Country     AUT     BEL     CAN     FIN     GRC     JPN     PRT     SLN      UK US
+     AUT       -                                                                   
+     BEL 0.00***       -                                                           
+     CAN   0.06* 0.00***       -                                                   
+     FIN    0.15    0.12 0.00***       -                                           
+     GRC 0.00*** 0.00*** 0.00*** 0.00***       -                                   
+     JPN 0.00***  0.01** 0.00*** 0.00*** 0.00***       -                           
+     PRT 0.00*** 0.00*** 0.00*** 0.00***    0.11 0.00***       -                   
+     SLN    0.59 0.00***    0.17  0.04** 0.00*** 0.00*** 0.00***       -           
+      UK    0.46  0.02** 0.01***    0.47 0.00*** 0.00*** 0.00***    0.21       -   
+      US 0.00*** 0.00***  0.03** 0.00***  0.04** 0.00***    0.58 0.00*** 0.00***  -
+
+Note: P-values for equal mean WTP between country pairs, computed from paired differences within each joint parameter draw (doi: 10.2307/3700938). The test uses 10000 valid Krinsky-Robb draws (of 10000 simulated) from the joint parameter distribution of Specification 1 (baseline), reused from Output/Models/Hypertension_Model_KrinskyRobbDraws.rds rather than re-simulated. Overlapping confidence intervals do not constitute a valid test of equality (Schenker and Gentleman 2001); this test provides the appropriate formal comparison. * p < 0.10, ** p < 0.05, *** p < 0.01, two-sided. Lower-triangular: row/column order matches REPORT_COUNTRIES (Austria through United States). Of the 45 country pairs, 36 (80.0%) are significant at 10%, 35 (77.8%) at 5%, 30 (66.7%) at 1%.
+
+Appendix Table A6 (pairwise Poe-Giraud-Loomis test) written.
+> 
+> 
+> Run_Script("Scripts/Figures/29_Hypertension_FigureA1_RiskGroupWillingnessToPay.R")
+Running Scripts/Figures/29_Hypertension_FigureA1_RiskGroupWillingnessToPay.R
+Analysis helpers loaded. PPP basis = AIC2023 | annuity factor = 8.639393 
+
+WTP-by-risk-group histogram figure written to Output/Figures/Hypertension_FigureA1_RiskGroupWillingnessToPay.png
+> 
+> 
+> Run_Script("Scripts/Models/30_Hypertension_Model_RobustnessChecks.R")
+Running Scripts/Models/30_Hypertension_Model_RobustnessChecks.R
+Analysis helpers loaded. PPP basis = AIC2023 | annuity factor = 8.639393 
+Validation: dbchoice logLik -12472.893 vs hand-coded at dbchoice estimates -12472.893
+
+(a) Mean VSC (USD 2023 PPP): published Spec 1 vs country FE with weighted pseudo-ML
+        Country Published FE_weightedML FE_unweighted Pct_diff_weightedML
+        Austria     51360         49828         49794                -3.0
+        Belgium     39166         39012         39344                -0.4
+         Canada     61074         61073         60179                 0.0
+        Finland     45056         44137         43726                -2.0
+         Greece     90058         91480         96753                 1.6
+          Japan     30565         28906         29769                -5.4
+       Portugal     78353         78453         80736                 0.1
+       Slovenia     54061         53465         52341                -1.1
+ United Kingdom     48137         47987         48903                -0.3
+  United States     74613         74549         73692                -0.1
+         Pooled     56780         56318         57035                -0.8
+
+Weighted pseudo-ML coefficients (sandwich SE):
+            term     est     se
+       Intercept  2.7664 0.0806
+       D_Belgium -0.1349 0.0569
+        D_Canada  0.1403 0.0576
+       D_Finland -0.0670 0.0573
+        D_Greece  0.3762 0.0630
+         D_Japan -0.3446 0.0587
+      D_Portugal  0.2636 0.0615
+      D_Slovenia  0.0578 0.0588
+ D_UnitedKingdom -0.0315 0.0582
+  D_UnitedStates  0.2603 0.0614
+            BASE -0.0050 0.0011
+              RR  0.0371 0.0027
+          LogBid -0.5061 0.0066
+Spearman rank correlation of country VSCs, published vs weighted ML: 1.000
+
+(b) Age within baseline-risk strata
+
+Spec 1 + years since stratum start: N = 9496, mean WTP = 970.28, mean VSC = 56863, logLik = -12470.348
+   BASE_Numeric                  -0.0056 (SE 0.0010, p = 0.000)
+   RR                             0.0371 (SE 0.0026, p = 0.000)
+   BID                           -0.5062 (SE 0.0065, p = 0.000)
+   LogIncome                          NA (SE NA, p = NA)
+   Health_HadHBP                      NA (SE NA, p = NA)
+   HBP_RelativeRiskHigh               NA (SE NA, p = NA)
+   HBP_Genetic                        NA (SE NA, p = NA)
+   HBP_Healthier                      NA (SE NA, p = NA)
+   Health_Relative                    NA (SE NA, p = NA)
+   Health_Drink                       NA (SE NA, p = NA)
+   Health_Lifestyle                   NA (SE NA, p = NA)
+   resp_age                           NA (SE NA, p = NA)
+   AgeWithin                      0.0034 (SE 0.0015, p = 0.024)
+
+Spec 3 (published): N = 9496, mean WTP = 1020.71, mean VSC = 59999, logLik = -12191.754
+   BASE_Numeric                  -0.0075 (SE 0.0012, p = 0.000)
+   RR                             0.0378 (SE 0.0026, p = 0.000)
+   BID                           -0.5219 (SE 0.0067, p = 0.000)
+   LogIncome                      0.2918 (SE 0.0249, p = 0.000)
+   Health_HadHBP                  0.0557 (SE 0.0317, p = 0.079)
+   HBP_RelativeRiskHigh           0.1338 (SE 0.0338, p = 0.000)
+   HBP_Genetic                    0.1526 (SE 0.0329, p = 0.000)
+   HBP_Healthier                 -0.2468 (SE 0.0350, p = 0.000)
+   Health_Relative                0.0496 (SE 0.0161, p = 0.002)
+   Health_Drink                   0.0451 (SE 0.0151, p = 0.003)
+   Health_Lifestyle               0.0604 (SE 0.0176, p = 0.001)
+   resp_age                           NA (SE NA, p = NA)
+   AgeWithin                          NA (SE NA, p = NA)
+
+Spec 3 + years since stratum start: N = 9496, mean WTP = 1020.72, mean VSC = 60013, logLik = -12191.748
+   BASE_Numeric                  -0.0075 (SE 0.0012, p = 0.000)
+   RR                             0.0377 (SE 0.0026, p = 0.000)
+   BID                           -0.5219 (SE 0.0067, p = 0.000)
+   LogIncome                      0.2920 (SE 0.0250, p = 0.000)
+   Health_HadHBP                  0.0564 (SE 0.0322, p = 0.080)
+   HBP_RelativeRiskHigh           0.1338 (SE 0.0338, p = 0.000)
+   HBP_Genetic                    0.1525 (SE 0.0330, p = 0.000)
+   HBP_Healthier                 -0.2468 (SE 0.0350, p = 0.000)
+   Health_Relative                0.0497 (SE 0.0161, p = 0.002)
+   Health_Drink                   0.0452 (SE 0.0151, p = 0.003)
+   Health_Lifestyle               0.0604 (SE 0.0176, p = 0.001)
+   resp_age                           NA (SE NA, p = NA)
+   AgeWithin                     -0.0002 (SE 0.0017, p = 0.909)
+
+(c) Respondents never diagnosed with hypertension
+
+Spec 1, undiagnosed only: N = 6309, mean WTP = 943.01, mean VSC = 54659, logLik = -8319.419
+   BASE_Numeric                  -0.0069 (SE 0.0012, p = 0.000)
+   RR                             0.0401 (SE 0.0032, p = 0.000)
+   BID                           -0.5125 (SE 0.0079, p = 0.000)
+   LogIncome                          NA (SE NA, p = NA)
+   Health_HadHBP                      NA (SE NA, p = NA)
+   HBP_RelativeRiskHigh               NA (SE NA, p = NA)
+   HBP_Genetic                        NA (SE NA, p = NA)
+   HBP_Healthier                      NA (SE NA, p = NA)
+   Health_Relative                    NA (SE NA, p = NA)
+   Health_Drink                       NA (SE NA, p = NA)
+   Health_Lifestyle                   NA (SE NA, p = NA)
+   resp_age                           NA (SE NA, p = NA)
+   AgeWithin                          NA (SE NA, p = NA)
+       Austria        Belgium         Canada        Finland         Greece          Japan       Portugal       Slovenia 
+         49581          34327          57851          40213          87679          25281          76931          47992 
+United Kingdom  United States 
+         49385          81308 
+
+(d) Ordinal health items coded 0 = not answered
+Respondents with any 0 = not answered: 118 (Health_Relative 44, Health_Drink 40, Health_Lifestyle 47)
+
+Spec 3 excluding item non-response: N = 9378, mean WTP = 1022.81, mean VSC = 60165, logLik = -12046.117
+   BASE_Numeric                  -0.0074 (SE 0.0012, p = 0.000)
+   RR                             0.0374 (SE 0.0026, p = 0.000)
+   BID                           -0.5220 (SE 0.0067, p = 0.000)
+   LogIncome                      0.2910 (SE 0.0251, p = 0.000)
+   Health_HadHBP                  0.0564 (SE 0.0320, p = 0.077)
+   HBP_RelativeRiskHigh           0.1272 (SE 0.0341, p = 0.000)
+   HBP_Genetic                    0.1547 (SE 0.0331, p = 0.000)
+   HBP_Healthier                 -0.2471 (SE 0.0353, p = 0.000)
+   Health_Relative                0.0467 (SE 0.0169, p = 0.006)
+   Health_Drink                   0.0439 (SE 0.0153, p = 0.004)
+   Health_Lifestyle               0.0598 (SE 0.0184, p = 0.001)
+   resp_age                           NA (SE NA, p = NA)
+   AgeWithin                          NA (SE NA, p = NA)
+> 
+> 
+> Run_Script("Scripts/Tables/31_Hypertension_TableA7_CountryInfluence.R")
+Running Scripts/Tables/31_Hypertension_TableA7_CountryInfluence.R
+Analysis helpers loaded. PPP basis = AIC2023 | annuity factor = 8.639393 
+
+Full sample (n=10): OOP_share = 3.189 (p = 0.093), log(GDP_pc) = 0.398, R-sq = 0.375
+
+#### Leave-one-country-out, Model 3: log(VSC_mean) ~ log(GDP_pc) + OOP_share ####
+        Dropped OOP_coef OOP_SE  OOP_p logGDP_coef    R2   CooksD Leverage_hat DFBETAS_OOP
+          Japan     1.29   1.97 0.5349      -0.259 0.276 0.655524        0.506      1.2531
+  United States     3.04   1.36 0.0668      -0.183 0.588 0.611866        0.389      0.1058
+        Belgium     4.69   1.27 0.0101       1.029 0.699 0.604919        0.310     -1.2986
+         Greece     2.33   2.00 0.2879       0.562 0.214 0.335717        0.599      0.5083
+       Slovenia     3.84   1.88 0.0869       0.604 0.434 0.089486        0.288     -0.3883
+       Portugal     2.91   1.91 0.1778       0.413 0.283 0.025502        0.334      0.1563
+         Canada     3.25   1.73 0.1092       0.364 0.401 0.018690        0.125     -0.0341
+        Finland     3.15   1.74 0.1209       0.410 0.374 0.011205        0.109      0.0245
+        Austria     3.25   1.78 0.1177       0.456 0.380 0.006651        0.201     -0.0370
+ United Kingdom     3.17   1.81 0.1311       0.394 0.364 0.000145        0.139      0.0102
+
+Thresholds (n=10, k=3): Cook's D > 0.400, leverage h_ii > 0.600, |DFBETAS| > 0.632
+
+#### Appendix table: influence diagnostics, cross-country Model 3 ####
+       Country dropped     OOP coef. OOP p-value log GDP coef. R-squared Cook's D Leverage (h) DFBETAS (OOP)
+ (none -- full sample) 3.189 (1.643)       0.093         0.398     0.375                                    
+                 Japan 1.294 (1.966)       0.535        -0.259     0.276    0.656        0.506         1.253
+         United States 3.045 (1.362)       0.067        -0.183     0.588    0.612        0.389         0.106
+               Belgium 4.688 (1.268)       0.010         1.029     0.699    0.605        0.310        -1.299
+                Greece 2.331 (1.999)       0.288         0.562     0.214    0.336        0.599         0.508
+              Slovenia 3.844 (1.881)       0.087         0.604     0.434    0.089        0.288        -0.388
+              Portugal 2.914 (1.910)       0.178         0.413     0.283    0.026        0.334         0.156
+                Canada 3.247 (1.728)       0.109         0.364     0.401    0.019        0.125        -0.034
+               Finland 3.146 (1.742)       0.121         0.410     0.374    0.011        0.109         0.025
+               Austria 3.254 (1.782)       0.118         0.456     0.380    0.007        0.201        -0.037
+        United Kingdom 3.171 (1.814)       0.131         0.394     0.364    0.000        0.139         0.010
+
+Appendix cross-country influence-diagnostics table written.
+> 
+> 
+> Run_Script("Scripts/Tables/32_Hypertension_TableA8_CountryRobustness.R")
+Running Scripts/Tables/32_Hypertension_TableA8_CountryRobustness.R
+        Country N_Spec1 VSC_Spec1 VSC_Weighted Pct_Weighted N_NeverDiagnosed VSC_NeverDiagnosed Pct_NeverDiagnosed
+        Austria     932     51360        49828         -3.0              589              49581               -3.5
+        Belgium     954     39166        39012         -0.4              661              34327              -12.4
+         Canada     959     61074        61073          0.0              645              57851               -5.3
+        Finland     955     45056        44137         -2.0              535              40213              -10.7
+         Greece     904     90058        91480          1.6              686              87679               -2.6
+          Japan     986     30565        28906         -5.4              731              25281              -17.3
+       Portugal     943     78353        78453          0.1              673              76931               -1.8
+       Slovenia     957     54061        53465         -1.1              564              47992              -11.2
+ United Kingdom    1021     48137        47987         -0.3              719              49385                2.6
+  United States     885     74613        74549         -0.1              506              81308                9.0
+         Pooled    9496     56780        56318         -0.8             6309              54659               -3.7
+
+Appendix Table A8 (country robustness) written.
+> 
+> 
+> # *************************************************************
+> #### Section 7: Validate the completed outputs ####
+> # *************************************************************
+> 
+> 
+> source("Scripts/Setup/33_Hypertension_Setup_CheckReplication.R", encoding = "UTF-8")
+Replication checks passed: syntax, 9,496 unique respondents, model samples and completed steps.
+> 
+> 
+> message("Replication completed. See Output/Replication for inputs, software and timings.")
+Replication completed. See Output/Replication for inputs, software and timings.
+> 
+> proc.time()
+   user  system elapsed 
+ 386.21   38.04  521.57 

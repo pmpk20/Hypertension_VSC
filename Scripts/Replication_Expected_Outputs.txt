@@ -19,5 +19,6 @@ Output/Tables/Hypertension_TableA7_CountryInfluence.txt
 Output/Tables/Hypertension_TableA8_CountryRobustness.txt
 Output/Tables/Hypertension_Table_CrossCountryRegressionsCooksDistance.txt
 Output/Tables/Hypertension_Table_DeterminantEstimates.txt
+Output/Tables/Hypertension_Table_DiscountingSensitivity.txt
 Output/Tables/Hypertension_Table_KrinskyRobbIntervals.txt
 Output/Tables/Hypertension_Table_RobustnessChecks.txt
